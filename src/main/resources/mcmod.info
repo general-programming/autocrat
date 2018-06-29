@@ -1,0 +1,23 @@
+[
+  {
+    "modid": "autocrat",
+    "name": "Autocrat",
+    "description": "Modular server administration tools",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://genprog.gq",
+    "updateUrl": "",
+    "authorList": [
+      "offbeatwitch"
+    ],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "requiredMods": [
+      "forgelin"
+    ],
+    "dependencies": [
+      "forgelin"
+    ]
+  }
+]
