@@ -7,6 +7,7 @@ import gq.genprog.autocrat.server.controller
 import io.github.hedgehog1029.frame.annotation.Command
 import io.github.hedgehog1029.frame.annotation.Group
 import io.github.hedgehog1029.frame.annotation.Sender
+import io.github.hedgehog1029.frame.annotation.Text
 import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.util.text.TextFormatting
 
@@ -14,12 +15,12 @@ import net.minecraft.util.text.TextFormatting
  * Written by @offbeatwitch.
  * Licensed under MIT.
  */
+@Group("groups", "group")
 class GroupModule {
     val slugRegex = Regex("[^a-z0-9\\-]")
 
     @Command(aliases = ["create"], description = "Create a new group.")
-    @Group("groups")
-    fun createGroup(@Sender sender: EntityPlayerMP, name: String) {
+    fun createGroup(@Sender sender: EntityPlayerMP, @Text name: String) {
         val storage = ClaimWorldStorage.get(sender.serverWorld)
 
         if (storage.getGroupOfPlayer(sender.uniqueID) != null) {
@@ -46,7 +47,6 @@ class GroupModule {
     }
 
     @Command(aliases = ["invite"], description = "Invite a new player to your group.")
-    @Group("groups")
     fun invitePlayer(@Sender sender: EntityPlayerMP, target: EntityPlayerMP) {
         val storage = ClaimWorldStorage.get(sender.serverWorld)
         val group = storage.getGroupOfPlayer(sender.uniqueID)
@@ -67,7 +67,6 @@ class GroupModule {
     }
 
     @Command(aliases = ["uninvite"], description = "Remove a player from your group.")
-    @Group("groups")
     fun removePlayer(@Sender sender: EntityPlayerMP, target: EntityPlayerMP) {
         val storage = ClaimWorldStorage.get(sender.serverWorld)
         val group = storage.getGroupOfPlayer(sender.uniqueID)
@@ -88,8 +87,7 @@ class GroupModule {
     }
 
     @Command(aliases = ["rename"], description = "Rename your group.")
-    @Group("groups")
-    fun renameGroup(@Sender sender: EntityPlayerMP, name: String) {
+    fun renameGroup(@Sender sender: EntityPlayerMP, @Text name: String) {
         val storage = ClaimWorldStorage.get(sender.serverWorld)
         val group = storage.getGroupOfPlayer(sender.uniqueID)
 
@@ -109,7 +107,6 @@ class GroupModule {
     }
 
     @Command(aliases = ["info"], description = "Get information about your group.")
-    @Group("groups")
     fun groupInfo(@Sender sender: EntityPlayerMP) {
         val storage = ClaimWorldStorage.get(sender.serverWorld)
         val group = storage.getGroupOfPlayer(sender.uniqueID)
