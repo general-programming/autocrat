@@ -21,6 +21,14 @@ class Faction(val id: String, var name: String, val owner: UUID, var access: Acc
         return isForeign(user.uniqueID)
     }
 
+    fun isOwner(user: UUID): Boolean {
+        return user == owner
+    }
+
+    fun isOwner(user: EntityPlayer): Boolean {
+        return isOwner(user.uniqueID)
+    }
+
     fun serializeNBT(): NBTTagCompound {
         val nbt = NBTTagCompound()
 

@@ -56,7 +56,7 @@ class GroupModule {
             return
         }
 
-        if (group.owner != sender.uniqueID) {
+        if (!group.isOwner(sender)) {
             sender.controller().chat("You don't own your group!", TextFormatting.RED)
             return
         }
@@ -76,7 +76,7 @@ class GroupModule {
             return
         }
 
-        if (group.owner != sender.uniqueID) {
+        if (!group.isOwner(sender)) {
             sender.controller().chat("You don't own your group!", TextFormatting.RED)
             return
         }
@@ -96,7 +96,7 @@ class GroupModule {
             return
         }
 
-        if (group.owner != sender.uniqueID) {
+        if (!group.isOwner(sender)) {
             sender.controller().chat("You don't own your group!", TextFormatting.RED)
             return
         }

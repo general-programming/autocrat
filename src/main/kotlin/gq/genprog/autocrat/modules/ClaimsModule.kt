@@ -152,7 +152,7 @@ class ClaimsModule: EventListener {
         val pos = ChunkPos(sender.position)
 
         if (claims.isClaimed(pos)) {
-            if (claims.getClaimGroup(pos)!!.owner == sender.uniqueID) {
+            if (claims.getClaimGroup(pos)!!.isOwner(sender)) {
                 claims.unclaimChunksUnchecked(listOf(pos))
 
                 ctx.chat("Unclaimed this chunk.", TextFormatting.GREEN)
