@@ -33,6 +33,11 @@ compileKotlin {
     }
 }
 
+configurations {
+    embed
+    compile.extendsFrom(embed)
+}
+
 minecraft {
     version = project.forgeVersion
     runDir = "run"
@@ -58,7 +63,7 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile group: "net.shadowfacts", name: "Forgelin", version: "1.7.3"
-    compile "io.github.hedgehog1029:frame:1.0.0-PRE"
+    embed "io.github.hedgehog1029:frame:1.0.0-PRE"
 }
 
 processResources {
@@ -78,4 +83,8 @@ processResources {
     from(sourceSets.main.resources.srcDirs) {
         exclude "mcmod.info"
     }
+}
+
+jar {
+    from configurations.embed.collect { it.isDirectory() ? it : zipTree(it) }
 }
