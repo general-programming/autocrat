@@ -25,8 +25,8 @@ class FrameForgeCommand(val pipeline: IPipeline): ICommand {
         return pipeline.primaryAlias
     }
 
-    override fun getTabCompletions(server: MinecraftServer?, sender: ICommandSender?, args: Array<out String>?, targetPos: BlockPos?): MutableList<String> {
-        return listOf<String>().toMutableList() // TODO: this
+    override fun getTabCompletions(server: MinecraftServer, sender: ICommandSender, args: Array<out String>, targetPos: BlockPos?): MutableList<String> {
+        return pipeline.getCompletions(args.toMutableList()) ?: mutableListOf()
     }
 
     override fun compareTo(other: ICommand?): Int {

@@ -1,8 +1,8 @@
 package gq.genprog.autocrat.modules
 
-import gq.genprog.autocrat.frame.Sender
 import gq.genprog.autocrat.server.controller
 import io.github.hedgehog1029.frame.annotation.Command
+import io.github.hedgehog1029.frame.annotation.Sender
 import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.util.text.TextFormatting
 import java.util.*
