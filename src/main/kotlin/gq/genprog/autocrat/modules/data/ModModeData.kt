@@ -4,6 +4,7 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
+import net.minecraft.util.math.BlockPos
 import net.minecraftforge.common.util.Constants
 import net.minecraftforge.common.util.INBTSerializable
 import net.minecraftforge.items.IItemHandler
@@ -16,6 +17,7 @@ import java.util.*
 class ModModeData: INBTSerializable<NBTTagCompound> {
     val adminInventories: HashMap<UUID, NBTTagList> = hashMapOf()
     val normalInventories: HashMap<UUID, NBTTagList> = hashMapOf()
+    val lastLocation: HashMap<UUID, BlockPos> = hashMapOf()
     val active: HashSet<UUID> = hashSetOf()
 
     fun isPlayerActive(player: EntityPlayer): Boolean {
@@ -25,6 +27,7 @@ class ModModeData: INBTSerializable<NBTTagCompound> {
     fun storePlayerTag(player: EntityPlayer, tag: NBTTagList): NBTTagList? {
         normalInventories[player.uniqueID] = tag
         active.add(player.uniqueID)
+        lastLocation[player.uniqueID] = player.position
         return adminInventories.remove(player.uniqueID)
     }
 
@@ -44,6 +47,11 @@ class ModModeData: INBTSerializable<NBTTagCompound> {
         for (key in normalTag.keySet) {
             normalInventories[UUID.fromString(key)] = normalTag.getTagList(key, Constants.NBT.TAG_COMPOUND)
         }
+
+        val lastLocTag = nbt.getCompoundTag("lastLoc")
+        for (key in lastLocTag.keySet) {
+            lastLocation[UUID.fromString(key)] = BlockPos.fromLong(lastLocTag.getLong(key))
+        }
     }
 
     override fun serializeNBT(): NBTTagCompound {
@@ -58,6 +66,15 @@ class ModModeData: INBTSerializable<NBTTagCompound> {
         normalInventories.forEach {
             normalTag.setTag(it.key.toString(), it.value)
         }
+
+        val lastLocTag = NBTTagCompound()
+        lastLocation.forEach {
+            lastLocTag.setLong(it.key.toString(), it.value.toLong())
+        }
+
+        compound.setTag("adminInv", adminTag)
+        compound.setTag("normalInv", normalTag)
+        compound.setTag("lastLoc", lastLocTag)
 
         return compound
     }

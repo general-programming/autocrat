@@ -5,6 +5,7 @@ import gq.genprog.autocrat.server.controller
 import io.github.hedgehog1029.frame.annotation.Command
 import io.github.hedgehog1029.frame.annotation.Sender
 import net.minecraft.entity.player.EntityPlayerMP
+import net.minecraft.world.GameType
 import net.minecraftforge.items.CapabilityItemHandler
 
 /**
@@ -31,6 +32,7 @@ class AdminModule {
                 data.modMode.deserializeInto(adminTag, itemHandler)
             }
 
+            sender.setGameType(GameType.CREATIVE)
             sender.controller().success("Entered mod mode. Use /done to quit.")
             data.markDirty()
         }
@@ -54,6 +56,12 @@ class AdminModule {
                 data.modMode.deserializeInto(playerTag, itemHandler)
             }
 
+            val pos = data.modMode.lastLocation.remove(sender.uniqueID)
+            if (pos != null) {
+                sender.setPositionAndUpdate(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble())
+            }
+
+            sender.setGameType(GameType.SURVIVAL)
             sender.controller().success("Exited mod mode.")
             data.markDirty()
         }

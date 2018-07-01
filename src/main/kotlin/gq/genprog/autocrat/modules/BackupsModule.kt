@@ -5,6 +5,7 @@ import gq.genprog.autocrat.integration.BackupsHookImpl
 import gq.genprog.autocrat.integration.sel.MutableSelection
 import gq.genprog.autocrat.server.controller
 import io.github.hedgehog1029.frame.annotation.Command
+import io.github.hedgehog1029.frame.annotation.Group
 import io.github.hedgehog1029.frame.annotation.Sender
 import io.github.hedgehog1029.frame.hooks.Hook
 import net.minecraft.entity.player.EntityPlayer
@@ -59,6 +60,7 @@ class BackupsModule: EventListener {
     }
 
     @Command(aliases = ["restore"], description = "Restore a backup within a selection.")
+    @Group("auto", "autocrat")
     fun restoreBackup(@Sender sender: EntityPlayerMP, backup: BackupsHook.Backup) {
         if (!backupsHook!!.isLoaded()) {
             sender.controller().err("Backups module isn't enabled!")

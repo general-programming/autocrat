@@ -51,6 +51,6 @@ class SleepVoteModule: EventListener {
             return
         }
 
-        playerList.controller().chat("$current/$total players are sleeping ($percent%/$threshold%)", TextFormatting.GOLD)
+        playerList.controller().chat("$current/$total players are sleeping ($percent% / $threshold%)", TextFormatting.GOLD)
     }
 }

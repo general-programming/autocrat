@@ -32,6 +32,7 @@ open class ServerProxy: Proxy() {
         frame.loadModule(SleepVoteModule())
         frame.loadModule(FancyName())
         frame.loadModule(BackupsModule())
+        frame.loadModule(AdminModule())
     }
 
     override fun onServerStart(ev: FMLServerStartingEvent) {
