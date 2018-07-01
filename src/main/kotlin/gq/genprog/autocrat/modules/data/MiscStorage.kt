@@ -31,6 +31,7 @@ class MiscStorage(name: String): WorldSavedData(name) {
     }
 
     val nicknames: HashMap<UUID, String> = hashMapOf()
+    val modMode = ModModeData()
 
     fun hasNick(player: EntityPlayer): Boolean {
         return nicknames.containsKey(player.uniqueID)
@@ -43,6 +44,7 @@ class MiscStorage(name: String): WorldSavedData(name) {
         }
 
         compound.setTag("nicks", nickStorage)
+        compound.setTag("admin", modMode.serializeNBT())
         return compound
     }
 
@@ -53,5 +55,7 @@ class MiscStorage(name: String): WorldSavedData(name) {
 
             nicknames[uid] = nickStorage.getString(key)
         }
+
+        this.modMode.deserializeNBT(nbt.getCompoundTag("admin"))
     }
 }

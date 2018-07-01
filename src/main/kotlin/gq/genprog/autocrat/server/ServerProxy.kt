@@ -4,6 +4,7 @@ import gq.genprog.autocrat.frame.ForgeCommandFactory
 import gq.genprog.autocrat.frame.ForgeHookCallback
 import gq.genprog.autocrat.frame.bindings.ForgeBindingProvider
 import gq.genprog.autocrat.frame.injectors.ForgeEventInjector
+import gq.genprog.autocrat.integration.CustomBindings
 import gq.genprog.autocrat.modules.*
 import io.github.hedgehog1029.frame.Frame
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
@@ -23,12 +24,14 @@ open class ServerProxy: Proxy() {
         frame.addInjector(ForgeEventInjector())
 
         frame.loadBindings(ForgeBindingProvider())
+        frame.loadBindings(CustomBindings())
 
         frame.loadModule(ChoicesModule())
         frame.loadModule(GroupModule())
         frame.loadModule(ClaimsModule())
         frame.loadModule(SleepVoteModule())
         frame.loadModule(FancyName())
+        frame.loadModule(BackupsModule())
     }
 
     override fun onServerStart(ev: FMLServerStartingEvent) {

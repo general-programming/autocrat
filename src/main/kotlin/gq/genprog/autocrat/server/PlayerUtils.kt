@@ -17,6 +17,17 @@ import net.minecraftforge.event.entity.player.PlayerEvent
 interface IController {
     fun chat(msg: String, color: TextFormatting = TextFormatting.GOLD): IController
     fun chat(block: MessageBuilder.() -> Unit)
+    fun err(msg: String) {
+        this.chat(msg, TextFormatting.RED)
+    }
+
+    fun warn(msg: String) {
+        this.chat(msg, TextFormatting.YELLOW)
+    }
+
+    fun success(msg: String) {
+        this.chat(msg, TextFormatting.GREEN)
+    }
 }
 
 abstract class AbstractController: IController {

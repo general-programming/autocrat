@@ -19,8 +19,14 @@ class AutocratConfig {
         public val threshold: Int = 45
     }
 
+    class BackupsModule {
+        @Config.Comment("Set the maximum size that can be restored at once via /auto restore.")
+        public val maxRestoreSize: Int = 524288
+    }
+
     companion object {
         @JvmStatic public val claims = ClaimsModule()
         @JvmStatic public val sleepVote = SleepModule()
+        @JvmStatic public val backups = BackupsModule()
     }
 }
