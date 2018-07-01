@@ -2,8 +2,10 @@ package gq.genprog.autocrat.integration
 
 import gq.genprog.autocrat.config.AutocratConfig
 import gq.genprog.autocrat.integration.sel.MutableSelection
+import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.init.Blocks
 import net.minecraft.inventory.IInventory
+import net.minecraft.nbt.CompressedStreamTools
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraft.world.gen.structure.StructureBoundingBox
@@ -11,6 +13,7 @@ import silly511.backups.BackupManager
 import silly511.backups.helpers.BackupHelper
 import silly511.backups.util.CompressedRegionLoader
 import java.io.File
+import java.io.FileInputStream
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -29,17 +32,32 @@ class BackupsHookImpl: BackupsHook() {
         return true
     }
 
-    override fun restoreSelection(world: World, selection: MutableSelection, backupName: String): Boolean {
-        val box = selection.toStructureBox() ?: return false
+    override fun restoreSelection(world: World, selection: MutableSelection, backupName: String): HookResult {
+        val box = selection.toStructureBox() ?: return HookResult(Status.INVALID_AREA, 0)
         val size = box.xSize * box.ySize * box.zSize
-        val backup = this.parseBackupString(backupName) ?: return false
+        val backup = this.parseBackupString(backupName) ?: return HookResult(Status.UNKNOWN_BACKUP, 0)
 
-        if (!world.isAreaLoaded(box)) return false
-        if (size > AutocratConfig.backups.maxRestoreSize) return false // TODO: Custom errors
+        if (!world.isAreaLoaded(box)) return HookResult(Status.AREA_NOT_LOADED, 0)
+        if (size > AutocratConfig.backups.maxRestoreSize) return HookResult(Status.AREA_TOO_BIG, 0)
 
-        this.restoreBackup(world, backup, box)
+        val changes = this.restoreBackup(world, backup, box)
 
-        return true
+        return HookResult(Status.SUCCESS, changes)
+    }
+
+    override fun restorePlayerData(world: World, player: EntityPlayerMP, backupName: String): HookResult {
+        val backup = this.parseBackupString(backupName) ?: return HookResult(Status.UNKNOWN_BACKUP, 0)
+        val loadDir = File(backup.dir, "playerdata")
+        val playerFile = File(loadDir, "${player.cachedUniqueIdString}.dat")
+
+        if (playerFile.exists() && playerFile.isFile) {
+            val tag = CompressedStreamTools.readCompressed(FileInputStream(playerFile))
+
+            player.readFromNBT(tag)
+            return HookResult(Status.SUCCESS, 0)
+        }
+
+        return HookResult(Status.MISSING_DATA, 0)
     }
 
     override fun listBackups(world: World): List<String> {
@@ -57,7 +75,9 @@ class BackupsHookImpl: BackupsHook() {
         completions.addAll(this.getBackups().map { it.time.atZone(timeZone).format(dateFormat) })
         completions.add("last")
 
-        return completions
+        return completions.filter {
+            it.startsWith(partial)
+        }.toMutableList()
     }
 
     fun StructureBoundingBox.getAllBlocks(): Iterable<BlockPos> {

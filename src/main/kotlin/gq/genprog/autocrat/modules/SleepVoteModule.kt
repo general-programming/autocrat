@@ -8,6 +8,7 @@ import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.*
+import kotlin.math.roundToInt
 
 /**
  * Written by @offbeatwitch.
@@ -35,9 +36,9 @@ class SleepVoteModule: EventListener {
     fun updateVote(world: WorldServer) {
         val playerList = world.minecraftServer!!.playerList
 
-        val current = this.sleepingPlayers.size.toFloat()
-        val total = playerList.currentPlayerCount.toFloat()
-        val percent = (current / total) * 100
+        val current = this.sleepingPlayers.size
+        val total = playerList.currentPlayerCount
+        val percent = (current.toFloat() / total.toFloat()) * 100
         val threshold = AutocratConfig.sleepVote.threshold
 
         if (percent >= threshold) {
@@ -51,6 +52,7 @@ class SleepVoteModule: EventListener {
             return
         }
 
-        playerList.controller().chat("$current/$total players are sleeping ($percent% / $threshold%)", TextFormatting.GOLD)
+        val percentStr = percent.roundToInt()
+        playerList.controller().chat("$current/$total players are sleeping ($percentStr% / $threshold%)", TextFormatting.GOLD)
     }
 }
