@@ -63,7 +63,7 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "net.shadowfacts:Forgelin:1.7.3"
-    embed "io.github.hedgehog1029:frame:1.1.0-PRE"
+    embed "io.github.hedgehog1029:frame:1.2.0-PRE"
     compile "silly511.backups:Backups:1.12.2-1.3"
 }
 

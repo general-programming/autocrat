@@ -65,7 +65,7 @@ class BackupsModule: EventListener {
         }
     }
 
-    @Command(aliases = ["restore"], description = "Restore a backup within a selection.")
+    @Command(aliases = ["restore"], description = "Restore a backup within a selection.", permission = "autocrat.backups")
     fun restoreBackup(@Sender sender: EntityPlayerMP, backup: BackupsHook.Backup) {
         if (!backupsHook!!.isLoaded()) {
             sender.controller().err("Backups module isn't enabled!")
@@ -103,7 +103,7 @@ class BackupsModule: EventListener {
         }
     }
 
-    @Command(aliases = ["restore_inv"], description = "Restore a player's inventory from backup.")
+    @Command(aliases = ["restore_inv"], description = "Restore a player's inventory from backup.", permission = "autocrat.backups")
     fun restorePlayerInv(@Sender sender: EntityPlayerMP, target: EntityPlayerMP, backup: BackupsHook.Backup) {
         if (!backupsHook!!.isLoaded()) {
             sender.controller().err("Backups module isn't enabled!")
@@ -131,7 +131,7 @@ class BackupsModule: EventListener {
         }
     }
 
-    @Command(aliases = ["undo"], description = "Undo a player data restore.")
+    @Command(aliases = ["undo"], description = "Undo a player data restore.", permission = "autocrat.backups")
     fun undoPlayerRestore(@Sender sender: EntityPlayerMP) {
         val last = lastRestored[sender.uniqueID]
         if (last == null) {

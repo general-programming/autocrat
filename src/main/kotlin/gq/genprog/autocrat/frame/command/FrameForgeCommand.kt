@@ -6,6 +6,7 @@ import io.github.hedgehog1029.frame.dispatcher.pipeline.IPipeline
 import io.github.hedgehog1029.frame.util.Namespace
 import net.minecraft.command.ICommand
 import net.minecraft.command.ICommandSender
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.TextComponentString
@@ -35,8 +36,15 @@ class FrameForgeCommand(val pipeline: IPipeline): ICommand {
         return this.name.compareTo(other.name)
     }
 
-    override fun checkPermission(server: MinecraftServer?, sender: ICommandSender): Boolean {
-        return true // TODO: implement this too
+    override fun checkPermission(server: MinecraftServer, sender: ICommandSender): Boolean {
+        if (pipeline.permission.isBlank() || sender is MinecraftServer) {
+            return true
+        }
+
+        val player = sender as EntityPlayer
+        val level = server.playerList.oppedPlayers.getPermissionLevel(player.gameProfile)
+
+        return level > 1
     }
 
     override fun isUsernameIndex(args: Array<out String>?, index: Int): Boolean {

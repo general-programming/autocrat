@@ -13,7 +13,7 @@ import net.minecraftforge.items.CapabilityItemHandler
  * Licensed under MIT.
  */
 class AdminModule {
-    @Command(aliases = ["mod"], description = "Enter mod mode.")
+    @Command(aliases = ["mod"], description = "Enter mod mode.", permission = "autocrat.mod")
     fun enterModMode(@Sender sender: EntityPlayerMP) {
         val data = MiscStorage.get(sender.world)
 
@@ -38,7 +38,7 @@ class AdminModule {
         }
     }
 
-    @Command(aliases = ["done"], description = "Exit mod mode.")
+    @Command(aliases = ["done"], description = "Exit mod mode.", permission = "autocrat.mod")
     fun exitModMode(@Sender sender: EntityPlayerMP) {
         val data = MiscStorage.get(sender.world)
 
