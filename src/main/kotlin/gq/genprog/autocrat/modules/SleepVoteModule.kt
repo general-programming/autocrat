@@ -35,8 +35,8 @@ class SleepVoteModule: EventListener {
     fun updateVote(world: WorldServer) {
         val playerList = world.minecraftServer!!.playerList
 
-        val current = this.sleepingPlayers.size
-        val total = playerList.currentPlayerCount
+        val current = this.sleepingPlayers.size.toFloat()
+        val total = playerList.currentPlayerCount.toFloat()
         val percent = (current / total) * 100
         val threshold = AutocratConfig.sleepVote.threshold
 
