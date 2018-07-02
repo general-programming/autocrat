@@ -19,7 +19,7 @@ class AdminModule {
 
         if (data.modMode.isPlayerActive(sender)) {
             sender.controller().err("You're already in mod-mode!")
-
+            return
         }
 
         if (sender.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) {
@@ -44,6 +44,7 @@ class AdminModule {
 
         if (!data.modMode.isPlayerActive(sender)) {
             sender.controller().err("You're not currently in mod-mode!")
+            return
         }
 
         if (sender.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) {

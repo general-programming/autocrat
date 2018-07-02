@@ -4,6 +4,7 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.item.ItemStack
 import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.NBTTagString
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.common.util.Constants
 import net.minecraftforge.common.util.INBTSerializable
@@ -52,6 +53,13 @@ class ModModeData: INBTSerializable<NBTTagCompound> {
         for (key in lastLocTag.keySet) {
             lastLocation[UUID.fromString(key)] = BlockPos.fromLong(lastLocTag.getLong(key))
         }
+
+        val activeTag = nbt.getTagList("active", Constants.NBT.TAG_STRING)
+        for (tag in activeTag) {
+            val value = (tag as NBTTagString).string
+
+            active.add(UUID.fromString(value))
+        }
     }
 
     override fun serializeNBT(): NBTTagCompound {
@@ -72,9 +80,15 @@ class ModModeData: INBTSerializable<NBTTagCompound> {
             lastLocTag.setLong(it.key.toString(), it.value.toLong())
         }
 
+        val activeTag = NBTTagList()
+        active.forEach {
+            activeTag.appendTag(NBTTagString(it.toString()))
+        }
+
         compound.setTag("adminInv", adminTag)
         compound.setTag("normalInv", normalTag)
         compound.setTag("lastLoc", lastLocTag)
+        compound.setTag("active", activeTag)
 
         return compound
     }
