@@ -75,6 +75,7 @@ class FrameForgeCommand(val pipeline: IPipeline): ICommand {
             sender.reply("Usage: " + this.getUsage(sender), TextFormatting.RED)
         } catch (ex: DispatcherException) {
             sender.reply(ex.message ?: "An unknown error occurred!", TextFormatting.RED)
+            ex.printStackTrace()
         }
     }
 }

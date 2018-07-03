@@ -9,17 +9,20 @@ import net.minecraft.nbt.CompressedStreamTools
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.World
 import net.minecraft.world.gen.structure.StructureBoundingBox
+import net.minecraftforge.items.CapabilityItemHandler
 import silly511.backups.BackupManager
 import silly511.backups.helpers.BackupHelper
 import silly511.backups.util.CompressedRegionLoader
 import java.io.File
 import java.io.FileInputStream
+import java.nio.file.Files
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.*
+import java.util.zip.InflaterInputStream
 
 /**
  * Written by @offbeatwitch.
@@ -48,10 +51,18 @@ class BackupsHookImpl: BackupsHook() {
     override fun restorePlayerData(world: World, player: EntityPlayerMP, backupName: String): HookResult {
         val backup = this.parseBackupString(backupName) ?: return HookResult(Status.UNKNOWN_BACKUP, 0)
         val loadDir = File(backup.dir, "playerdata")
-        val playerFile = File(loadDir, "${player.cachedUniqueIdString}.dat")
+        val playerPath = File(loadDir, "${player.cachedUniqueIdString}.dat").toPath()
+
+        val playerFile = if (Files.isSymbolicLink(playerPath)) {
+            Files.readSymbolicLink(playerPath).toFile()
+        } else {
+            playerPath.toFile()
+        }
 
         if (playerFile.exists() && playerFile.isFile) {
-            val tag = CompressedStreamTools.readCompressed(FileInputStream(playerFile))
+            val compressed = FileInputStream(playerFile)
+            val inflated = InflaterInputStream(compressed)
+            val tag = CompressedStreamTools.readCompressed(inflated)
 
             player.readFromNBT(tag)
             return HookResult(Status.SUCCESS, 0)
@@ -106,6 +117,14 @@ class BackupsHookImpl: BackupsHook() {
             val te = world.getTileEntity(pos)
 
             if (te is IInventory) te.clear()
+            if (te?.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null) == true) {
+                val handler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)!!
+
+                for (i in 0..handler.slots) {
+                    handler.extractItem(i, handler.getSlotLimit(i), false)
+                }
+            }
+
             world.setBlockState(pos, Blocks.BARRIER.defaultState, 2)
         }
 

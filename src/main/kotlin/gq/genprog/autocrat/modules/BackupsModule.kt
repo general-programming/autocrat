@@ -12,6 +12,7 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.init.Items
 import net.minecraft.nbt.CompressedStreamTools
+import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.text.TextFormatting
 import net.minecraftforge.event.entity.player.PlayerInteractEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
@@ -154,23 +155,24 @@ class BackupsModule: EventListener {
         val flag = world.disableLevelSaving
         world.disableLevelSaving = true
 
-        val loadFile = File(world.provider.saveFolder, "playerdata")
-        val playerFile = File(loadFile, "${player.cachedUniqueIdString}.dat")
+        val loadFile = File(world.saveHandler.worldDirectory, "playerdata")
         val target = File(loadFile, "${player.cachedUniqueIdString}.dat.backup")
+        val tag = NBTTagCompound()
 
-        playerFile.copyTo(target)
+        player.writeToNBT(tag)
+        CompressedStreamTools.writeCompressed(tag, target.outputStream())
 
         world.disableLevelSaving = flag
     }
 
     fun restoreInventory(player: EntityPlayerMP): Boolean {
         val world = player.serverWorld
-        val loadFile = File(world.provider.saveFolder, "playerdata")
+        val loadFile = File(world.saveHandler.worldDirectory, "playerdata")
         val backupFile = File(loadFile, "${player.cachedUniqueIdString}.dat.backup")
 
         if (!backupFile.exists() || !backupFile.isFile) return false
 
-        val nbt = CompressedStreamTools.readCompressed(FileInputStream(backupFile))
+        val nbt = CompressedStreamTools.readCompressed(FileInputStream(backupFile)) ?: return false
         player.readFromNBT(nbt)
 
         return true
