@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.event.*
  * Written by @offbeatwitch.
  * Licensed under MIT.
  */
-@Mod(modid = MOD_ID, name = MOD_NAME, acceptableRemoteVersions = "*")
+@Mod(modid = MOD_ID, name = MOD_NAME, acceptableRemoteVersions = "*", modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", dependencies = "required-after:forgelin;")
 class Autocrat {
     companion object {
         @SidedProxy(modId = MOD_ID, serverSide = "gq.genprog.autocrat.server.ServerProxy", clientSide = "gq.genprog.autocrat.server.Proxy")
