@@ -30,5 +30,6 @@ public class AutocratConfig {
 	}
 
 	@Config.Comment("Value in seconds of the keep-alive timeout.")
+	@Config.RangeInt(min = 15, max = 300)
 	public static int keepAliveTimeout = 30;
 }
