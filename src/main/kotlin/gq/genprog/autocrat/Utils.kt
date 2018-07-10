@@ -9,34 +9,32 @@ import java.util.*
  * Written by @offbeatwitch.
  * Licensed under MIT.
  */
-class InventoryUtils {
-    companion object {
-        fun getContainerListeners(container: Container): List<IContainerListener> {
-            val field = Container::class.java.getDeclaredField("listeners")
-            field.isAccessible = true
+object InventoryUtils {
+    fun getContainerListeners(container: Container): List<IContainerListener> {
+        val field = Container::class.java.getDeclaredField("listeners")
+        field.isAccessible = true
 
-            return field.get(container) as List<IContainerListener>
-        }
+        return field.get(container) as List<IContainerListener>
+    }
 
-        fun sendAllContents(container: Container) {
-            for (i in 0 until container.inventorySlots.size) {
-                val stack = container.inventorySlots.get(i).stack
-                val copy = stack.copy()
-                container.inventoryItemStacks[i] = copy
+    fun sendAllContents(container: Container) {
+        for (i in 0 until container.inventorySlots.size) {
+            val stack = container.inventorySlots.get(i).stack
+            val copy = stack.copy()
+            container.inventoryItemStacks[i] = copy
 
-                for (receiver in getContainerListeners(container)) {
-                    receiver.sendSlotContents(container, i, copy)
-                }
+            for (receiver in getContainerListeners(container)) {
+                receiver.sendSlotContents(container, i, copy)
             }
         }
+    }
 
-        fun sendHeldContents(player: EntityPlayer) {
-            val i = player.inventory.currentItem
-            val stack = player.inventoryContainer.getSlot(i).stack
+    fun sendHeldContents(player: EntityPlayer) {
+        val i = player.inventory.currentItem
+        val stack = player.inventoryContainer.getSlot(i).stack
 
-            for (receiver in getContainerListeners(player.inventoryContainer)) {
-                receiver.sendSlotContents(player.inventoryContainer, i, stack)
-            }
+        for (receiver in getContainerListeners(player.inventoryContainer)) {
+            receiver.sendSlotContents(player.inventoryContainer, i, stack)
         }
     }
 }
