@@ -88,4 +88,9 @@ processResources {
 
 jar {
     from configurations.embed.collect { it.isDirectory() ? it : zipTree(it) }
+
+    manifest {
+        attributes "FMLCorePlugin": "gq.genprog.autocrat.AutocratLoadingPlugin",
+                "FMLCorePluginContainsFMLMod": "true"
+    }
 }

@@ -1,9 +1,6 @@
 package gq.genprog.autocrat.server
 
-import net.minecraftforge.fml.common.event.FMLInitializationEvent
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent
+import net.minecraftforge.fml.common.event.*
 
 /**
  * Written by @offbeatwitch.
@@ -23,6 +20,10 @@ open class Proxy {
     }
 
     open fun onServerStart(ev: FMLServerStartingEvent) {
+
+    }
+
+    open fun onServerStarted(ev: FMLServerStartedEvent) {
 
     }
 }

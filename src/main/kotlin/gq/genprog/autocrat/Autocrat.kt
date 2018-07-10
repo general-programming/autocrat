@@ -3,10 +3,7 @@ package gq.genprog.autocrat
 import gq.genprog.autocrat.server.Proxy
 import net.minecraftforge.fml.common.Mod
 import net.minecraftforge.fml.common.SidedProxy
-import net.minecraftforge.fml.common.event.FMLInitializationEvent
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent
+import net.minecraftforge.fml.common.event.*
 
 /**
  * Written by @offbeatwitch.
@@ -33,5 +30,9 @@ class Autocrat {
 
     @Mod.EventHandler fun onServerStarting(ev: FMLServerStartingEvent) {
         proxy?.onServerStart(ev)
+    }
+
+    @Mod.EventHandler fun onServerStarted(ev: FMLServerStartedEvent) {
+        proxy?.onServerStarted(ev)
     }
 }

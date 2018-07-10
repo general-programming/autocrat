@@ -5,9 +5,11 @@ import gq.genprog.autocrat.frame.ForgeHookCallback
 import gq.genprog.autocrat.frame.bindings.ForgeBindingProvider
 import gq.genprog.autocrat.frame.injectors.ForgeEventInjector
 import gq.genprog.autocrat.integration.CustomBindings
+import gq.genprog.autocrat.integration.ReloadableTricks
 import gq.genprog.autocrat.modules.*
 import io.github.hedgehog1029.frame.Frame
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
+import net.minecraftforge.fml.common.event.FMLServerStartedEvent
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent
 
 /**
@@ -27,6 +29,7 @@ open class ServerProxy: Proxy() {
         frame.loadBindings(CustomBindings())
 
         frame.loadModule(ChoicesModule())
+        frame.loadModule(TricksModule())
         frame.loadModule(GroupModule())
         frame.loadModule(ClaimsModule())
         frame.loadModule(SleepVoteModule())
@@ -37,5 +40,9 @@ open class ServerProxy: Proxy() {
 
     override fun onServerStart(ev: FMLServerStartingEvent) {
         frame.go()
+    }
+
+    override fun onServerStarted(ev: FMLServerStartedEvent) {
+        ReloadableTricks.reload()
     }
 }
