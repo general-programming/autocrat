@@ -10,6 +10,7 @@ import net.minecraft.init.SoundEvents
 import net.minecraft.util.EnumParticleTypes
 import net.minecraft.util.SoundCategory
 import net.minecraftforge.event.entity.ProjectileImpactEvent
+import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import java.util.*
 
@@ -37,6 +38,15 @@ class SimpleHomesModule: EventListener {
             ev.isCanceled = true
             ev.throwable.world.removeEntity(ev.throwable)
         }
+    }
+
+    @SubscribeEvent fun onPlayerSleep(ev: PlayerSleepInBedEvent) {
+        val player = ev.entityPlayer as EntityPlayerMP
+
+        if (player.getBedLocation() == ev.pos) return
+
+        player.setSpawnPoint(ev.pos, false)
+        player.controller().chat("You have set your home location to this bed. When you die, you will respawn here.")
     }
 
     // WIP tpa system
