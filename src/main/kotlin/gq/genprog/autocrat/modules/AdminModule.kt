@@ -5,14 +5,28 @@ import gq.genprog.autocrat.server.controller
 import io.github.hedgehog1029.frame.annotation.Command
 import io.github.hedgehog1029.frame.annotation.Sender
 import net.minecraft.entity.player.EntityPlayerMP
+import net.minecraft.util.math.BlockPos
 import net.minecraft.world.GameType
+import net.minecraftforge.event.CommandEvent
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.items.CapabilityItemHandler
+import org.apache.logging.log4j.LogManager
+import java.util.*
 
 /**
  * Written by @offbeatwitch.
  * Licensed under MIT.
  */
-class AdminModule {
+class AdminModule: EventListener {
+    val modlog = LogManager.getFactory().getContext(AdminModule::class.qualifiedName!!,
+            javaClass.classLoader, null, true,
+            javaClass.classLoader.getResource("modlog.xml").toURI(), "modlog")
+            .getLogger("autocrat")
+
+    fun BlockPos.joinToString(seperator: CharSequence = ", "): String {
+        return arrayOf(x, y, z).joinToString(seperator)
+    }
+
     @Command(aliases = ["mod"], description = "Enter mod mode.", permission = "autocrat.mod")
     fun enterModMode(@Sender sender: EntityPlayerMP) {
         val data = MiscStorage.get(sender.world)
@@ -34,6 +48,7 @@ class AdminModule {
 
             sender.setGameType(GameType.CREATIVE)
             sender.controller().success("Entered mod mode. Use /done to quit.")
+            modlog.info("{} ({}) entered modmode at ({})", sender.name, sender.uniqueID, sender.position.joinToString())
             data.markDirty()
         }
     }
@@ -64,7 +79,18 @@ class AdminModule {
 
             sender.setGameType(GameType.SURVIVAL)
             sender.controller().success("Exited mod mode.")
+            modlog.info("{} exited modmode.", sender.name)
             data.markDirty()
         }
+    }
+
+    @SubscribeEvent fun onCommand(ev: CommandEvent) {
+        val sender = ev.sender
+        val data = MiscStorage.get(sender.entityWorld)
+
+        if (sender !is EntityPlayerMP) return
+        if (!data.modMode.isPlayerActive(sender)) return
+
+        modlog.info("{} executed command /{} {}", sender.name, ev.command.name, ev.parameters.joinToString(" "))
     }
 }

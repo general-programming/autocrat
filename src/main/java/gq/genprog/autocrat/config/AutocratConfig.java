@@ -10,9 +10,24 @@ import static gq.genprog.autocrat.MetaKt.MOD_ID;
  */
 @Config(modid = MOD_ID)
 public class AutocratConfig {
+	public static Modules modules = new Modules();
 	public static ClaimsModule claims = new ClaimsModule();
 	public static SleepModule sleepVote = new SleepModule();
 	public static BackupsModule backups = new BackupsModule();
+
+	public static class Modules {
+		@Config.Comment("Enable the claims modules (factions, claims)")
+		public boolean claims = true;
+
+		@Config.Comment("Enable the fancy names module")
+		public boolean fancyNames = true;
+
+		@Config.Comment("Enable the sleep-vote module")
+		public boolean sleepVote = true;
+
+		@Config.Comment("Enable the admin module")
+		public boolean admin = true;
+	}
 
 	public static class ClaimsModule {
 		@Config.Comment("Maximum number of chunks a group can claim.")
