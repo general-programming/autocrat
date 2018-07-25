@@ -22,11 +22,17 @@ public class AutocratConfig {
 		@Config.Comment("Enable the fancy names module")
 		public boolean fancyNames = true;
 
-		@Config.Comment("Enable the sleep-vote module")
+		@Config.Comment("Enable the sleep-vote module. Disables itself if Quark or Morpheus are installed.")
 		public boolean sleepVote = true;
 
 		@Config.Comment("Enable the admin module")
 		public boolean admin = true;
+
+		@Config.Comment("Enables the simple home module (ender pearl at feet)")
+		public boolean simpleHome = true;
+
+		@Config.Comment("Enables the command-based homes module")
+		public boolean commandHome = false;
 	}
 
 	public static class ClaimsModule {

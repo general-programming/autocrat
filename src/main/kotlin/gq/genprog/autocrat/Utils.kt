@@ -3,6 +3,8 @@ package gq.genprog.autocrat
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.inventory.Container
 import net.minecraft.inventory.IContainerListener
+import net.minecraft.util.math.BlockPos
+import net.minecraft.util.math.Vec3d
 import java.util.*
 
 /**
@@ -42,4 +44,12 @@ object InventoryUtils {
 val random = Random()
 fun <T> randomFrom(array: Array<T>): T {
     return array[random.nextInt(array.size)]
+}
+
+fun BlockPos.joinToString(seperator: CharSequence = ", "): String {
+    return arrayOf(x, y, z).joinToString(seperator)
+}
+
+fun BlockPos.toDoubleVec(): Vec3d {
+    return Vec3d(this)
 }

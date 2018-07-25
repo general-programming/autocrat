@@ -5,10 +5,15 @@ import gq.genprog.autocrat.frame.ForgeCommandFactory
 import gq.genprog.autocrat.frame.ForgeHookCallback
 import gq.genprog.autocrat.frame.bindings.ForgeBindingProvider
 import gq.genprog.autocrat.frame.injectors.ForgeEventInjector
+import gq.genprog.autocrat.integration.ConflictChecker
 import gq.genprog.autocrat.integration.CustomBindings
 import gq.genprog.autocrat.integration.ReloadableTricks
 import gq.genprog.autocrat.modules.*
+import gq.genprog.autocrat.modules.data.IHomeCapability
+import gq.genprog.autocrat.modules.data.PlayerHomes
+import gq.genprog.autocrat.modules.data.capability.HomeStorage
 import io.github.hedgehog1029.frame.Frame
+import net.minecraftforge.common.capabilities.CapabilityManager
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
 import net.minecraftforge.fml.common.event.FMLServerStartedEvent
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent
@@ -24,6 +29,8 @@ open class ServerProxy: Proxy() {
     }.build()
 
     override fun onPreInit(ev: FMLPreInitializationEvent) {
+        CapabilityManager.INSTANCE.register(IHomeCapability::class.java, HomeStorage()) { PlayerHomes() }
+
         frame.addInjector(ForgeEventInjector())
 
         frame.loadBindings(ForgeBindingProvider())
@@ -37,7 +44,7 @@ open class ServerProxy: Proxy() {
             frame.loadModule(ClaimsModule())
         }
 
-        if (AutocratConfig.modules.sleepVote)
+        if (AutocratConfig.modules.sleepVote && !ConflictChecker.isSleepVoteLoaded())
             frame.loadModule(SleepVoteModule())
 
         if (AutocratConfig.modules.fancyNames)
@@ -45,6 +52,12 @@ open class ServerProxy: Proxy() {
 
         if (AutocratConfig.modules.admin)
             frame.loadModule(AdminModule())
+
+        if (AutocratConfig.modules.simpleHome)
+            frame.loadModule(SimpleHomesModule())
+
+        if (AutocratConfig.modules.commandHome)
+            frame.loadModule(HomesModule())
 
         frame.loadModule(BackupsModule())
     }

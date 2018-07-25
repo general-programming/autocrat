@@ -15,7 +15,7 @@ import java.lang.reflect.Parameter
 class SenderProvider<T : ICommandSender>: Provider<T> {
     override fun getSuggestions(partial: String): MutableList<String> {
         return FMLServerHandler.instance().server.playerList.players.map { it.name }.filter {
-            it.startsWith(partial)
+            it.toLowerCase().startsWith(partial.toLowerCase())
         }.toMutableList()
     }
 
