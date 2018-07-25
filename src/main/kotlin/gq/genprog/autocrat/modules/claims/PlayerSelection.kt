@@ -27,6 +27,19 @@ class PlayerSelection {
         return first != null && second != null
     }
 
+    fun currentArea(): Int {
+        if (!isComplete()) return 0
+
+        val (x1, y1, z1) = first!!.run { arrayOf(x, y, z) }
+        val (x2, y2, z2) = second!!.run { arrayOf(x, y, z) }
+
+        val w = Math.abs(x1 - x2)
+        val h = Math.abs(y1 - y2)
+        val d = Math.abs(z1 - z2)
+
+        return w * h * d
+    }
+
     fun toImmutable(): CompletedSelection? {
         if (!isComplete())
             return null

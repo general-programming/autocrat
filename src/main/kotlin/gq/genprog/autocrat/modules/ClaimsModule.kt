@@ -2,6 +2,7 @@ package gq.genprog.autocrat.modules
 
 import gq.genprog.autocrat.InventoryUtils
 import gq.genprog.autocrat.config.AutocratConfig
+import gq.genprog.autocrat.integration.WorldEditCUIHook
 import gq.genprog.autocrat.modules.claims.ClaimWorldStorage
 import gq.genprog.autocrat.modules.claims.PlayerSelection
 import gq.genprog.autocrat.server.choice
@@ -25,10 +26,12 @@ import kotlin.collections.HashMap
  */
 class ClaimsModule: EventListener {
     val selections: HashMap<UUID, PlayerSelection> = HashMap()
+    val weHook = WorldEditCUIHook()
 
     fun getPlayerSelection(player: EntityPlayer): PlayerSelection {
         if (!selections.containsKey(player.uniqueID)) {
             selections[player.uniqueID] = PlayerSelection()
+            weHook.startCuboidSelection(player as EntityPlayerMP)
         }
 
         return selections[player.uniqueID]!!
@@ -48,10 +51,12 @@ class ClaimsModule: EventListener {
         }
 
         if (event.itemStack.item == Items.GOLDEN_SHOVEL) {
-            getPlayerSelection(event.entityPlayer).first = event.pos
+            val sel = getPlayerSelection(event.entityPlayer)
+            sel.first = event.pos
 
             event.controller().chat("Set first position to (${event.pos.x}, ${event.pos.y}, ${event.pos.z})")
             event.isCanceled = true
+            weHook.sendPoint(event.entityPlayer as EntityPlayerMP, sel)
         }
     }
 
@@ -81,10 +86,12 @@ class ClaimsModule: EventListener {
         }
 
         if (event.itemStack.item == Items.GOLDEN_SHOVEL) {
-            getPlayerSelection(event.entityPlayer).second = event.pos
+            val sel = getPlayerSelection(event.entityPlayer)
+            sel.second = event.pos
 
             event.controller().chat("Set second position to (${event.pos.x}, ${event.pos.y}, ${event.pos.z})")
             event.isCanceled = true
+            weHook.sendPoint(event.entityPlayer as EntityPlayerMP, sel)
         }
     }
 
@@ -139,6 +146,7 @@ class ClaimsModule: EventListener {
 
                 ctx.chat("Claimed $numToClaim chunks.", TextFormatting.GREEN)
                 selections.remove(sender.uniqueID)
+                weHook.clearSelection(sender)
             } else {
                 ctx.chat("Cancelled claim request.")
             }
