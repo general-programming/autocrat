@@ -171,4 +171,12 @@ class ClaimsModule: EventListener {
             ctx.chat("This chunk isn't claimed!", TextFormatting.RED)
         }
     }
+
+    @Command(aliases = ["clearsel", "clearselection"], description = "Clear current selection.")
+    fun clearSelection(@Sender sender: EntityPlayerMP) {
+        selections.remove(sender.uniqueID)
+        weHook.clearSelection(sender)
+
+        sender.controller().success("Cleared selection.")
+    }
 }

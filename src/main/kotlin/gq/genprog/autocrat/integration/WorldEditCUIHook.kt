@@ -26,11 +26,11 @@ class WorldEditCUIHook {
     }
 
     fun startCuboidSelection(player: EntityPlayerMP) {
-        player.sendCuiMsg("s|cuboid")
+        player.sendCuiMsg("+s|cuboid|${player.uniqueID}")
     }
 
     fun clearSelection(player: EntityPlayerMP) {
-        player.sendCuiMsg("s")
+        player.sendCuiMsg("+s|clear")
     }
 
     fun sendPoint(player: EntityPlayerMP, selection: PlayerSelection) {
@@ -39,15 +39,15 @@ class WorldEditCUIHook {
         val area = selection.currentArea()
 
         selection.first?.apply {
-            player.sendCuiMsg("p|0|$x|$y|$z|$area")
+            player.sendCuiMsg("+p|0|$x|$y|$z|$area")
         }
 
         selection.second?.apply {
-            player.sendCuiMsg("p|1|$x|$y|$z|$area")
+            player.sendCuiMsg("+p|1|$x|$y|$z|$area")
         }
 
-        player.sendCuiMsg("grid|4.0")
-        player.sendCuiMsg("col|#|#00CED1|#FF8C00|#")
+        player.sendCuiMsg("+grid|4.0")
+        player.sendCuiMsg("+col|#|#00CED1|#FF8C00|#")
     }
 
     fun isCuiEnabled(player: EntityPlayerMP): Boolean {
@@ -76,7 +76,6 @@ class WorldEditCUIHook {
 
             val (type, value) = text.split('|')
 
-            println("WECUI version $value")
             player.attributeMap.registerAttribute(hasCuiMarker).also { it.baseValue = value.toInt().toDouble() }
         }
     }
