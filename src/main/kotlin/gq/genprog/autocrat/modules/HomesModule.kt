@@ -10,19 +10,21 @@ import io.github.hedgehog1029.frame.annotation.Sender
 import net.minecraft.entity.Entity
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.entity.player.EntityPlayerMP
+import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.common.capabilities.Capability
-import net.minecraftforge.common.capabilities.ICapabilityProvider
+import net.minecraftforge.common.capabilities.ICapabilitySerializable
 import net.minecraftforge.event.AttachCapabilitiesEvent
 import net.minecraftforge.event.entity.player.PlayerEvent
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import java.util.*
 
 /**
  * Written by @offbeatwitch.
  * Licensed under MIT.
  */
-class HomesModule {
+class HomesModule: EventListener {
     @SubscribeEvent fun onCapabilityAttach(ev: AttachCapabilitiesEvent<Entity>) {
         val ent = ev.`object`
 
@@ -42,15 +44,19 @@ class HomesModule {
     }
 
     @Command(aliases = ["home"], description = "Return to a home.")
-    fun home(@Sender sender: EntityPlayerMP, @Optional homeName: String = "home") {
+    fun home(@Sender sender: EntityPlayerMP, @Optional optHomeName: String?) {
+        val homeName = optHomeName ?: "home"
+
         if (sender.hasCapability(CapabilityHomeStorage.HOME_STORAGE_CAPABILITY!!, null)) {
             val homes = sender.getCapability(CapabilityHomeStorage.HOME_STORAGE_CAPABILITY!!, null)!!
 
             val home = homes.getHome(homeName)
 
             if (home != null) {
-                sender.setPositionAndUpdate(home.x.toDouble(), home.y.toDouble(), home.z.toDouble())
+                sender.setPositionAndUpdate(home.x.toDouble() + 0.5, home.y.toDouble(), home.z.toDouble() + 0.5)
                 sender.controller().success("Teleported to $homeName.")
+            } else {
+                sender.controller().err("No home named '$homeName'.")
             }
         } else {
             sender.controller().err("Severe error getting home: no home capability!")
@@ -58,7 +64,9 @@ class HomesModule {
     }
 
     @Command(aliases = ["sethome"], description = "Set a home.")
-    fun sethome(@Sender sender: EntityPlayerMP, @Optional homeName: String = "home") {
+    fun sethome(@Sender sender: EntityPlayerMP, @Optional optHomeName: String?) {
+        val homeName = optHomeName ?: "home"
+
         if (sender.hasCapability(CapabilityHomeStorage.HOME_STORAGE_CAPABILITY!!, null)) {
             val homes = sender.getCapability(CapabilityHomeStorage.HOME_STORAGE_CAPABILITY!!, null)!!
 
@@ -69,10 +77,28 @@ class HomesModule {
         }
     }
 
-    class HomeCapabilityProvider: ICapabilityProvider {
+    @Command(aliases = ["delhome"], description = "Delete a home.")
+    fun delhome(@Sender sender: EntityPlayerMP, @Optional optHomeName: String?) {
+        val homeName = optHomeName ?: "home"
+
+        if (sender.hasCapability(CapabilityHomeStorage.HOME_STORAGE_CAPABILITY!!, null)) {
+            val homes = sender.getCapability(CapabilityHomeStorage.HOME_STORAGE_CAPABILITY!!, null)!!
+
+            if (homes.delHome(homeName))
+                sender.controller().success("Deleted home '$homeName'.")
+            else
+                sender.controller().warn("You don't currently have a home with the name '$homeName'.")
+        } else {
+            sender.controller().err("Severe error setting home: no home capability!")
+        }
+    }
+
+    class HomeCapabilityProvider: ICapabilitySerializable<NBTTagCompound> {
+        val homes = PlayerHomes()
+
         override fun <T : Any?> getCapability(capability: Capability<T>, facing: EnumFacing?): T? {
             if (capability == CapabilityHomeStorage.HOME_STORAGE_CAPABILITY) {
-                return CapabilityHomeStorage.HOME_STORAGE_CAPABILITY?.cast(PlayerHomes())
+                return CapabilityHomeStorage.get().cast(homes)
             }
 
             return null
@@ -83,6 +109,16 @@ class HomesModule {
                 return true
 
             return false
+        }
+
+        override fun serializeNBT(): NBTTagCompound {
+            return CapabilityHomeStorage.get().writeNBT(homes, null) as NBTTagCompound
+        }
+
+        override fun deserializeNBT(nbt: NBTTagCompound?) {
+            if (nbt == null) return
+
+            CapabilityHomeStorage.get().readNBT(homes, null, nbt)
         }
     }
 }

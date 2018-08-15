@@ -11,6 +11,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.text.TextComponentString
 import net.minecraft.util.text.TextFormatting
+import net.minecraftforge.server.permission.PermissionAPI
 import java.util.*
 
 /**
@@ -42,9 +43,7 @@ class FrameForgeCommand(val pipeline: IPipeline): ICommand {
         }
 
         val player = sender as EntityPlayer
-        val level = server.playerList.oppedPlayers.getPermissionLevel(player.gameProfile)
-
-        return level > 1
+        return PermissionAPI.hasPermission(player, pipeline.permission)
     }
 
     override fun isUsernameIndex(args: Array<out String>?, index: Int): Boolean {

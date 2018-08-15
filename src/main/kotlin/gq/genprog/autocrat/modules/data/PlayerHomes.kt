@@ -20,7 +20,11 @@ class PlayerHomes(homes: Map<String, BlockPos>) : IHomeCapability {
     }
 
     override fun setHome(name: String, pos: BlockPos) {
-        homes.replace(name, pos)
+        homes[name] = pos
+    }
+
+    override fun delHome(name: String): Boolean {
+        return homes.remove(name) != null
     }
 
     override fun getAllHomes(): Map<String, BlockPos> {

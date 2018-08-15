@@ -6,6 +6,7 @@ import net.minecraft.entity.ai.attributes.RangedAttribute
 import net.minecraft.entity.player.EntityPlayerMP
 import net.minecraft.network.NetHandlerPlayServer
 import net.minecraft.network.PacketBuffer
+import net.minecraft.util.math.ChunkPos
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.fml.common.network.FMLNetworkEvent
 import net.minecraftforge.fml.common.network.NetworkRegistry
@@ -17,6 +18,7 @@ import net.minecraftforge.fml.common.network.internal.FMLProxyPacket
  */
 class WorldEditCUIHook {
     val channelName = "WECUI"
+    val autocratSelectionUid = "bbdd0c77-aa3b-452c-9feb-52af99f9da89"
     val hasCuiMarker = RangedAttribute(null, "wecui.marker", 0.0, 0.0, 4.0)
 
     val cuiChannel = NetworkRegistry.INSTANCE.newEventDrivenChannel(channelName)
@@ -26,11 +28,11 @@ class WorldEditCUIHook {
     }
 
     fun startCuboidSelection(player: EntityPlayerMP) {
-        player.sendCuiMsg("+s|cuboid|${player.uniqueID}")
+        player.sendCuiMsg("+s|cuboid|$autocratSelectionUid")
     }
 
     fun clearSelection(player: EntityPlayerMP) {
-        player.sendCuiMsg("+s|clear")
+        player.sendCuiMsg("+s|clear|$autocratSelectionUid")
     }
 
     fun sendPoint(player: EntityPlayerMP, selection: PlayerSelection) {
@@ -46,8 +48,16 @@ class WorldEditCUIHook {
             player.sendCuiMsg("+p|1|$x|$y|$z|$area")
         }
 
-        player.sendCuiMsg("+grid|4.0")
-        player.sendCuiMsg("+col|#|#00CED1|#FF8C00|#")
+        player.sendCuiMsg("+grid|4.0|cull")
+        player.sendCuiMsg("+col|#008080|#00CED1|#FF8C00|#191970") // color format: border, grid, primary, secondary
+    }
+
+    fun sendChunkBorders(player: EntityPlayerMP, first: ChunkPos, second: ChunkPos) {
+        player.sendCuiMsg("+s|cuboid|$autocratSelectionUid")
+        player.sendCuiMsg("+p|0|${first.x}|0|${first.z}|0")
+        player.sendCuiMsg("+p|1|${second.x}|256|${second.z}|0")
+        player.sendCuiMsg("+grid|0.0|cull")
+        player.sendCuiMsg("+col|#DAA520|#FF4500|#00000000|#00000000")
     }
 
     fun isCuiEnabled(player: EntityPlayerMP): Boolean {

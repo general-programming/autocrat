@@ -9,5 +9,6 @@ import net.minecraft.util.math.BlockPos
 interface IHomeCapability {
     fun getHome(name: String): BlockPos?
     fun setHome(name: String, pos: BlockPos)
+    fun delHome(name: String): Boolean
     fun getAllHomes(): Map<String, BlockPos>
 }

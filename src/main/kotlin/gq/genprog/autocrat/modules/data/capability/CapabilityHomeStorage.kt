@@ -10,5 +10,10 @@ import net.minecraftforge.common.capabilities.CapabilityInject
  */
 object CapabilityHomeStorage {
     @CapabilityInject(IHomeCapability::class)
+    @JvmField
     var HOME_STORAGE_CAPABILITY: Capability<IHomeCapability>? = null
+
+    fun get(): Capability<IHomeCapability> {
+        return HOME_STORAGE_CAPABILITY!!
+    }
 }

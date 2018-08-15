@@ -69,8 +69,11 @@ class ClaimsModule: EventListener {
 
             if (group == null)
                 event.controller().chat("This area isn't claimed.", TextFormatting.RED)
-            else
+            else {
                 event.controller().chat("This area is claimed by ${group.name}.", TextFormatting.GREEN)
+
+//                weHook.sendChunkBorders(event.entityPlayer as EntityPlayerMP, )
+            }
         }
 
         if (claims.isClaimed(pos)) {

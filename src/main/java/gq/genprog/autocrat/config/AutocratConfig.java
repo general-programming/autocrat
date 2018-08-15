@@ -13,6 +13,7 @@ public class AutocratConfig {
 	@Config.Comment({"Controls which Autocrat modules are enabled.",
 			"Certain modules may force-disable themselves if they detect a mod with conflicting functionality."})
 	public static Modules modules = new Modules();
+	public static General general = new General();
 	public static ClaimsModule claims = new ClaimsModule();
 	public static SleepModule sleepVote = new SleepModule();
 	public static BackupsModule backups = new BackupsModule();
@@ -35,6 +36,11 @@ public class AutocratConfig {
 
 		@Config.Comment("Enables the command-based homes module (/home, /sethome). [WIP]")
 		public boolean commandHome = false;
+	}
+
+	public static class General {
+		@Config.Comment("List of disabled commands by primary alias.")
+		public String[] disabledCommands = new String[]{};
 	}
 
 	public static class ClaimsModule {
