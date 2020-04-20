@@ -3,7 +3,7 @@ package gq.genprog.autocrat.modules
 import gq.genprog.autocrat.server.controller
 import io.github.hedgehog1029.frame.annotation.Command
 import io.github.hedgehog1029.frame.annotation.Sender
-import net.minecraft.entity.player.EntityPlayerMP
+import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.util.text.TextFormatting
 import java.util.*
 import kotlin.collections.HashMap
@@ -27,7 +27,7 @@ class ChoicesModule {
         }
     }
 
-    @Command(aliases = ["yes", "confirm"], description = "Confirm a choice.") fun confirm(@Sender sender: EntityPlayerMP) {
+    @Command(aliases = ["yes", "confirm"], description = "Confirm a choice.") fun confirm(@Sender sender: ServerPlayerEntity) {
         if (activeChoices.containsKey(sender.uniqueID)) {
             resolve(sender.uniqueID, true)
         } else {
@@ -35,7 +35,7 @@ class ChoicesModule {
         }
     }
 
-    @Command(aliases = ["no", "cancel"], description = "Cancel a choice.") fun cancel(@Sender sender: EntityPlayerMP) {
+    @Command(aliases = ["no", "cancel"], description = "Cancel a choice.") fun cancel(@Sender sender: ServerPlayerEntity) {
         if (activeChoices.containsKey(sender.uniqueID)) {
             resolve(sender.uniqueID, false)
         } else {

@@ -1,10 +1,10 @@
 package gq.genprog.autocrat.modules.claims
 
 import gq.genprog.autocrat.MOD_ID
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.ListNBT
 import net.minecraft.util.math.ChunkPos
-import net.minecraft.world.World
+import net.minecraft.world.server.ServerWorld
 import net.minecraft.world.storage.WorldSavedData
 import net.minecraftforge.common.util.Constants
 import java.util.*
@@ -19,16 +19,9 @@ class ClaimWorldStorage(identifier: String): WorldSavedData(identifier) {
     companion object {
         const val IDENTIFIER = "${MOD_ID}_claims"
 
-        fun get(world: World): ClaimWorldStorage {
-            val storage = world.perWorldStorage
-            var inst = storage.getOrLoadData(ClaimWorldStorage::class.java, IDENTIFIER) as ClaimWorldStorage?
-
-            if (inst == null) {
-                inst = ClaimWorldStorage()
-                storage.setData(IDENTIFIER, inst)
-            }
-
-            return inst
+        fun get(world: ServerWorld): ClaimWorldStorage {
+            val storage = world.savedData
+            return storage.getOrCreate({ ClaimWorldStorage() }, IDENTIFIER)
         }
     }
 
@@ -86,42 +79,42 @@ class ClaimWorldStorage(identifier: String): WorldSavedData(identifier) {
         }
     }
 
-    override fun writeToNBT(compound: NBTTagCompound): NBTTagCompound {
-        val groups = NBTTagCompound()
+    override fun write(compound: CompoundNBT): CompoundNBT {
+        val groups = CompoundNBT()
         for (group in this.groups) {
-            groups.setTag(group.key, group.value.serializeNBT())
+            groups.put(group.key, group.value.serializeNBT())
         }
 
-        val chunkList = NBTTagList()
+        val chunkList = ListNBT()
         for (entry in chunks) {
-            val serial = NBTTagCompound()
+            val serial = CompoundNBT()
 
-            serial.setInteger("x", entry.key.x)
-            serial.setInteger("z", entry.key.z)
-            serial.setString("group", entry.value)
+            serial.putInt("x", entry.key.x)
+            serial.putInt("z", entry.key.z)
+            serial.putString("group", entry.value)
 
-            chunkList.appendTag(serial)
+            chunkList.add(serial)
         }
 
-        compound.setTag("groups", groups)
-        compound.setTag("chunks", chunkList)
+        compound.put("groups", groups)
+        compound.put("chunks", chunkList)
 
         return compound
     }
 
-    override fun readFromNBT(nbt: NBTTagCompound) {
-        val groups = nbt.getCompoundTag("groups")
-        for (id in groups.keySet) {
+    override fun read(nbt: CompoundNBT) {
+        val groups = nbt.getCompound("groups")
+        for (id in groups.keySet()) {
             this.groups[id] = Faction.Builder().also {
                 it.id = id
-                it.deserializeNBT(groups.getCompoundTag(id))
+                it.deserializeNBT(groups.getCompound(id))
             }.build()
         }
 
-        val chunkList = nbt.getTagList("chunks", Constants.NBT.TAG_COMPOUND)
+        val chunkList = nbt.getList("chunks", Constants.NBT.TAG_COMPOUND)
         for (entry in chunkList) {
-            val data = entry as NBTTagCompound
-            val pos = ChunkPos(data.getInteger("x"), data.getInteger("z"))
+            val data = entry as CompoundNBT
+            val pos = ChunkPos(data.getInt("x"), data.getInt("z"))
 
             chunks[pos] = data.getString("group")
         }

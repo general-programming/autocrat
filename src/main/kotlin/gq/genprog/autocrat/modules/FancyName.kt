@@ -6,10 +6,10 @@ import gq.genprog.autocrat.server.controller
 import io.github.hedgehog1029.frame.annotation.Command
 import io.github.hedgehog1029.frame.annotation.Sender
 import io.github.hedgehog1029.frame.annotation.Text
-import net.minecraft.entity.player.EntityPlayerMP
+import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.util.text.TextFormatting
 import net.minecraftforge.event.entity.player.PlayerEvent
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import net.minecraftforge.eventbus.api.SubscribeEvent
 import java.util.*
 
 /**
@@ -27,7 +27,8 @@ class FancyName: EventListener {
             TextFormatting.DARK_GREEN
     )
 
-    @SubscribeEvent fun onNameFormat(event: PlayerEvent.NameFormat) {
+    @SubscribeEvent
+    fun onNameFormat(event: PlayerEvent.NameFormat) {
         val storage = MiscStorage.get(event.entityPlayer.world)
         val prefix = randomFrom(validColors).toString()
         val suffix = TextFormatting.RESET.toString()
@@ -42,7 +43,7 @@ class FancyName: EventListener {
     }
 
     @Command(aliases = ["nickname", "nick"], description = "Change your nickname.")
-    fun changeNick(@Sender sender: EntityPlayerMP, @Text nick: String) {
+    fun changeNick(@Sender sender: ServerPlayerEntity, @Text nick: String) {
         val storage = MiscStorage.get(sender.world)
 
         if (nick.isBlank()) {
@@ -62,6 +63,6 @@ class FancyName: EventListener {
         }
 
         storage.markDirty()
-        sender.refreshDisplayName()
+//        sender.refreshDisplayName()
     }
 }

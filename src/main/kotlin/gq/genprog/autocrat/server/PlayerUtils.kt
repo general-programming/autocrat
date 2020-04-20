@@ -1,13 +1,15 @@
 package gq.genprog.autocrat.server
 
 import gq.genprog.autocrat.modules.ChoicesModule
-import net.minecraft.command.ICommandSender
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.command.ICommandSource
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.server.management.PlayerList
 import net.minecraft.util.text.ITextComponent
+import net.minecraft.util.text.StringTextComponent
 import net.minecraft.util.text.Style
-import net.minecraft.util.text.TextComponentString
 import net.minecraft.util.text.TextFormatting
+import net.minecraft.world.dimension.DimensionType
+import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.event.entity.player.PlayerEvent
 
 /**
@@ -32,7 +34,7 @@ interface IController {
 
 abstract class AbstractController: IController {
     override fun chat(msg: String, color: TextFormatting): IController {
-        val text = TextComponentString(msg).also {
+        val text = StringTextComponent(msg).also {
             it.style = Style().setColor(color)
         }
 
@@ -50,14 +52,14 @@ abstract class AbstractController: IController {
     abstract fun sendMessage(component: ITextComponent)
 }
 
-class CommandSenderController(val sender: ICommandSender): AbstractController() {
+class CommandSenderController(val sender: ICommandSource): AbstractController() {
     override fun sendMessage(component: ITextComponent) {
         sender.sendMessage(component)
     }
 }
 
 class MessageBuilder {
-    val parent = TextComponentString("")
+    val parent = StringTextComponent("")
 
     fun color(color: TextFormatting) {
         parent.style.color = color
@@ -72,7 +74,7 @@ class MessageBuilder {
     }
 
     fun append(text: String, color: TextFormatting) {
-        val component = TextComponentString(text + '\n')
+        val component = StringTextComponent(text + '\n')
         component.style.color = color
 
         parent.appendSibling(component)
@@ -83,12 +85,12 @@ class MessageBuilder {
     }
 }
 
-fun EntityPlayer.controller(): CommandSenderController {
+fun PlayerEntity.controller(): CommandSenderController {
     return CommandSenderController(this)
 }
 
 fun PlayerEvent.controller(): CommandSenderController {
-    return CommandSenderController(this.entityPlayer)
+    return CommandSenderController(this.player)
 }
 
 fun PlayerList.controller(): IController {
@@ -99,6 +101,10 @@ fun PlayerList.controller(): IController {
     }
 }
 
-fun EntityPlayer.choice(cb: (choice: Boolean) -> Unit) {
+fun PlayerEntity.choice(cb: (choice: Boolean) -> Unit) {
     ChoicesModule.awaitChoice(this.uniqueID, cb)
+}
+
+fun PlayerEntity.resolveOverworld(): ServerWorld {
+    return server!!.getWorld(DimensionType.OVERWORLD)
 }

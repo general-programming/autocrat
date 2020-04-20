@@ -1,10 +1,10 @@
 package gq.genprog.autocrat.modules.claims
 
 import gq.genprog.autocrat.modules.claims.groups.AccessMode
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
-import net.minecraft.nbt.NBTTagString
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.ListNBT
+import net.minecraft.nbt.StringNBT
 import net.minecraftforge.common.util.Constants
 import java.util.*
 
@@ -17,7 +17,7 @@ class Faction(val id: String, var name: String, val owner: UUID, var access: Acc
         return user != owner && !members.contains(user)
     }
 
-    fun isForeign(user: EntityPlayer): Boolean {
+    fun isForeign(user: PlayerEntity): Boolean {
         return isForeign(user.uniqueID)
     }
 
@@ -25,20 +25,20 @@ class Faction(val id: String, var name: String, val owner: UUID, var access: Acc
         return user == owner
     }
 
-    fun isOwner(user: EntityPlayer): Boolean {
+    fun isOwner(user: PlayerEntity): Boolean {
         return isOwner(user.uniqueID)
     }
 
-    fun serializeNBT(): NBTTagCompound {
-        val nbt = NBTTagCompound()
+    fun serializeNBT(): CompoundNBT {
+        val nbt = CompoundNBT()
 
         nbt.setString("name", name)
         nbt.setUniqueId("owner", owner)
         nbt.setByte("accessMode", access.id)
 
-        val memberTag = NBTTagList()
+        val memberTag = ListNBT()
         for (member in members) {
-            memberTag.appendTag(NBTTagString(member.toString()))
+            memberTag.appendTag(StringNBT(member.toString()))
         }
 
         nbt.setTag("members", memberTag)
@@ -53,14 +53,14 @@ class Faction(val id: String, var name: String, val owner: UUID, var access: Acc
         var access: AccessMode? = null
         val members: ArrayList<UUID> = arrayListOf()
 
-        fun deserializeNBT(nbt: NBTTagCompound) {
+        fun deserializeNBT(nbt: CompoundNBT) {
             this.name = nbt.getString("name")
             this.owner = nbt.getUniqueId("owner")
             this.access = AccessMode.fromId(nbt.getByte("accessMode"))
 
-            val memberTags = nbt.getTagList("members", Constants.NBT.TAG_STRING)
+            val memberTags = nbt.getList("members", Constants.NBT.TAG_STRING)
             for (tag in memberTags) {
-                this.members.add(UUID.fromString((tag as NBTTagString).string))
+                this.members.add(UUID.fromString((tag as StringNBT).string))
             }
         }
 

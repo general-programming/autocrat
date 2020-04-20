@@ -4,11 +4,11 @@ import gq.genprog.autocrat.modules.data.MiscStorage
 import gq.genprog.autocrat.server.controller
 import io.github.hedgehog1029.frame.annotation.Command
 import io.github.hedgehog1029.frame.annotation.Sender
-import net.minecraft.entity.player.EntityPlayerMP
+import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.GameType
 import net.minecraftforge.event.CommandEvent
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
+import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.items.CapabilityItemHandler
 import org.apache.logging.log4j.LogManager
 import java.util.*
@@ -28,7 +28,7 @@ class AdminModule: EventListener {
     }
 
     @Command(aliases = ["mod"], description = "Enter mod mode.", permission = "autocrat.mod")
-    fun enterModMode(@Sender sender: EntityPlayerMP) {
+    fun enterModMode(@Sender sender: ServerPlayerEntity) {
         val data = MiscStorage.get(sender.world)
 
         if (data.modMode.isPlayerActive(sender)) {
@@ -36,8 +36,7 @@ class AdminModule: EventListener {
             return
         }
 
-        if (sender.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) {
-            val itemHandler = sender.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)!!
+        sender.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent { itemHandler ->
             val tag = data.modMode.serializeInventory(itemHandler)
 
             val adminTag = data.modMode.storePlayerTag(sender, tag)
@@ -54,7 +53,7 @@ class AdminModule: EventListener {
     }
 
     @Command(aliases = ["done"], description = "Exit mod mode.", permission = "autocrat.mod")
-    fun exitModMode(@Sender sender: EntityPlayerMP) {
+    fun exitModMode(@Sender sender: ServerPlayerEntity) {
         val data = MiscStorage.get(sender.world)
 
         if (!data.modMode.isPlayerActive(sender)) {
@@ -62,8 +61,7 @@ class AdminModule: EventListener {
             return
         }
 
-        if (sender.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) {
-            val itemHandler = sender.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)!!
+        sender.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent { itemHandler ->
             val tag = data.modMode.serializeInventory(itemHandler)
 
             val playerTag = data.modMode.storeAdminTag(sender, tag)
@@ -85,12 +83,14 @@ class AdminModule: EventListener {
     }
 
     @SubscribeEvent fun onCommand(ev: CommandEvent) {
-        val sender = ev.sender
-        val data = MiscStorage.get(sender.entityWorld)
+        val ctx = ev.parseResults.context
+        val sender = ctx.source
+        val player = sender.entity
+        val data = MiscStorage.get(sender.world)
 
-        if (sender !is EntityPlayerMP) return
-        if (!data.modMode.isPlayerActive(sender)) return
+        if (player !is ServerPlayerEntity) return
+        if (!data.modMode.isPlayerActive(player)) return
 
-        modlog.info("{} executed command /{} {}", sender.name, ev.command.name, ev.parameters.joinToString(" "))
+        modlog.info("{} executed command /{} {}", player.name, ctx.rootNode.name, ctx.arguments.keys.joinToString(" "))
     }
 }

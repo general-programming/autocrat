@@ -3,20 +3,20 @@ package gq.genprog.autocrat.frame.bindings
 import io.github.hedgehog1029.frame.annotation.Sender
 import io.github.hedgehog1029.frame.dispatcher.arguments.ICommandArguments
 import io.github.hedgehog1029.frame.dispatcher.provider.Provider
-import net.minecraft.command.ICommandSender
+import net.minecraft.command.ICommandSource
 import net.minecraft.server.MinecraftServer
-import net.minecraftforge.fml.server.FMLServerHandler
 import java.lang.reflect.Parameter
 
 /**
  * Written by @offbeatwitch.
  * Licensed under MIT.
  */
-class SenderProvider<T : ICommandSender>: Provider<T> {
+class SenderProvider<T : ICommandSource>: Provider<T> {
     override fun getSuggestions(partial: String): MutableList<String> {
-        return FMLServerHandler.instance().server.playerList.players.map { it.name }.filter {
-            it.toLowerCase().startsWith(partial.toLowerCase())
-        }.toMutableList()
+//        return FMLServerHandler.instance().server.playerList.players.map { it.name }.filter {
+//            it.toLowerCase().startsWith(partial.toLowerCase())
+//        }.toMutableList()
+        return mutableListOf()
     }
 
     override fun provide(args: ICommandArguments, param: Parameter): T? {

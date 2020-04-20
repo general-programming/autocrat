@@ -14,21 +14,23 @@ import gq.genprog.autocrat.modules.data.PlayerHomes
 import gq.genprog.autocrat.modules.data.capability.HomeStorage
 import io.github.hedgehog1029.frame.Frame
 import net.minecraftforge.common.capabilities.CapabilityManager
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent
-import net.minecraftforge.fml.common.event.FMLServerStartedEvent
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent
+import net.minecraftforge.eventbus.api.SubscribeEvent
+import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent
+import net.minecraftforge.fml.event.server.FMLServerStartedEvent
+import net.minecraftforge.fml.event.server.FMLServerStartingEvent
 
 /**
  * Written by @offbeatwitch.
  * Licensed under MIT.
  */
-open class ServerProxy: Proxy() {
+class ServerProxy {
     val frame: Frame = Frame.Builder().also {
         it.commandFactory = ForgeCommandFactory()
         it.hookCallback = ForgeHookCallback()
     }.build()
 
-    override fun onPreInit(ev: FMLPreInitializationEvent) {
+    @SubscribeEvent
+    fun onServerInit(ev: FMLDedicatedServerSetupEvent) {
         CapabilityManager.INSTANCE.register(IHomeCapability::class.java, HomeStorage()) { PlayerHomes() }
 
         frame.addInjector(ForgeEventInjector())
@@ -58,15 +60,15 @@ open class ServerProxy: Proxy() {
 
         if (AutocratConfig.modules.commandHome)
             frame.loadModule(HomesModule())
-
-        frame.loadModule(BackupsModule())
     }
 
-    override fun onServerStart(ev: FMLServerStartingEvent) {
+    @SubscribeEvent
+    fun onServerStart(ev: FMLServerStartingEvent) {
         frame.go()
     }
 
-    override fun onServerStarted(ev: FMLServerStartedEvent) {
+    @SubscribeEvent
+    fun onServerStarted(ev: FMLServerStartedEvent) {
         ReloadableTricks.reload()
     }
 }

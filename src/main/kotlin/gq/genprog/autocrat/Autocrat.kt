@@ -1,38 +1,41 @@
 package gq.genprog.autocrat
 
-import gq.genprog.autocrat.server.Proxy
+import gq.genprog.autocrat.server.ServerProxy
+import net.minecraftforge.api.distmarker.Dist
+import net.minecraftforge.common.MinecraftForge
+import net.minecraftforge.fml.DistExecutor
+import net.minecraftforge.fml.ExtensionPoint
+import net.minecraftforge.fml.ModLoadingContext
 import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.common.SidedProxy
-import net.minecraftforge.fml.common.event.*
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext
+import net.minecraftforge.fml.network.FMLNetworkConstants
+import org.apache.commons.lang3.tuple.Pair
+import java.util.function.BiPredicate
+import java.util.function.Supplier
 
 /**
  * Written by @offbeatwitch.
  * Licensed under MIT.
  */
-@Mod(modid = MOD_ID, name = MOD_NAME, acceptableRemoteVersions = "*", modLanguageAdapter = "net.shadowfacts.forgelin.KotlinAdapter", dependencies = "required-after:forgelin;")
+@Mod(MOD_ID)
 class Autocrat {
-    companion object {
-        @SidedProxy(modId = MOD_ID, serverSide = "gq.genprog.autocrat.server.ServerProxy", clientSide = "gq.genprog.autocrat.server.Proxy")
-        @JvmStatic var proxy: Proxy? = null
-    }
+    init {
+        ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.DISPLAYTEST) {
+            Pair.of(
+                    Supplier { FMLNetworkConstants.IGNORESERVERONLY },
+                    BiPredicate { _, _ -> true }
+            )
+        }
 
-    @Mod.EventHandler fun onPreInit(ev: FMLPreInitializationEvent) {
-        proxy?.onPreInit(ev)
-    }
+        val ctx = FMLJavaModLoadingContext.get()
 
-    @Mod.EventHandler fun onInit(ev: FMLInitializationEvent) {
-        proxy?.onInit(ev)
-    }
+        DistExecutor.runWhenOn(Dist.DEDICATED_SERVER) {
+            Runnable {
+                val proxy = ServerProxy()
 
-    @Mod.EventHandler fun onPostInit(ev: FMLPostInitializationEvent) {
-        proxy?.onPostInit(ev)
-    }
-
-    @Mod.EventHandler fun onServerStarting(ev: FMLServerStartingEvent) {
-        proxy?.onServerStart(ev)
-    }
-
-    @Mod.EventHandler fun onServerStarted(ev: FMLServerStartedEvent) {
-        proxy?.onServerStarted(ev)
+                ctx.modEventBus.register(proxy)
+                MinecraftForge.EVENT_BUS.register(proxy)
+            }
+        }
     }
 }

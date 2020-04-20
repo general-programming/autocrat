@@ -1,10 +1,10 @@
 package gq.genprog.autocrat.modules.data
 
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.item.ItemStack
-import net.minecraft.nbt.NBTTagCompound
-import net.minecraft.nbt.NBTTagList
-import net.minecraft.nbt.NBTTagString
+import net.minecraft.nbt.CompoundNBT
+import net.minecraft.nbt.ListNBT
+import net.minecraft.nbt.StringNBT
 import net.minecraft.util.math.BlockPos
 import net.minecraftforge.common.util.Constants
 import net.minecraftforge.common.util.INBTSerializable
@@ -15,98 +15,98 @@ import java.util.*
  * Written by @offbeatwitch.
  * Licensed under MIT.
  */
-class ModModeData: INBTSerializable<NBTTagCompound> {
-    val adminInventories: HashMap<UUID, NBTTagList> = hashMapOf()
-    val normalInventories: HashMap<UUID, NBTTagList> = hashMapOf()
+class ModModeData: INBTSerializable<CompoundNBT> {
+    val adminInventories: HashMap<UUID, ListNBT> = hashMapOf()
+    val normalInventories: HashMap<UUID, ListNBT> = hashMapOf()
     val lastLocation: HashMap<UUID, BlockPos> = hashMapOf()
     val active: HashSet<UUID> = hashSetOf()
 
-    fun isPlayerActive(player: EntityPlayer): Boolean {
+    fun isPlayerActive(player: PlayerEntity): Boolean {
         return active.contains(player.uniqueID)
     }
 
-    fun storePlayerTag(player: EntityPlayer, tag: NBTTagList): NBTTagList? {
+    fun storePlayerTag(player: PlayerEntity, tag: ListNBT): ListNBT? {
         normalInventories[player.uniqueID] = tag
         active.add(player.uniqueID)
         lastLocation[player.uniqueID] = player.position
         return adminInventories.remove(player.uniqueID)
     }
 
-    fun storeAdminTag(player: EntityPlayer, tag: NBTTagList): NBTTagList? {
+    fun storeAdminTag(player: PlayerEntity, tag: ListNBT): ListNBT? {
         adminInventories[player.uniqueID] = tag
         active.remove(player.uniqueID)
         return normalInventories.remove(player.uniqueID)
     }
 
-    override fun deserializeNBT(nbt: NBTTagCompound) {
-        val adminTag = nbt.getCompoundTag("adminInv")
-        for (key in adminTag.keySet) {
-            adminInventories[UUID.fromString(key)] = adminTag.getTagList(key, Constants.NBT.TAG_COMPOUND)
+    override fun deserializeNBT(nbt: CompoundNBT) {
+        val adminTag = nbt.getCompound("adminInv")
+        for (key in adminTag.keySet()) {
+            adminInventories[UUID.fromString(key)] = adminTag.getList(key, Constants.NBT.TAG_COMPOUND)
         }
 
-        val normalTag = nbt.getCompoundTag("normalInv")
-        for (key in normalTag.keySet) {
-            normalInventories[UUID.fromString(key)] = normalTag.getTagList(key, Constants.NBT.TAG_COMPOUND)
+        val normalTag = nbt.getCompound("normalInv")
+        for (key in normalTag.keySet()) {
+            normalInventories[UUID.fromString(key)] = normalTag.getList(key, Constants.NBT.TAG_COMPOUND)
         }
 
-        val lastLocTag = nbt.getCompoundTag("lastLoc")
-        for (key in lastLocTag.keySet) {
+        val lastLocTag = nbt.getCompound("lastLoc")
+        for (key in lastLocTag.keySet()) {
             lastLocation[UUID.fromString(key)] = BlockPos.fromLong(lastLocTag.getLong(key))
         }
 
-        val activeTag = nbt.getTagList("active", Constants.NBT.TAG_STRING)
+        val activeTag = nbt.getList("active", Constants.NBT.TAG_STRING)
         for (tag in activeTag) {
-            val value = (tag as NBTTagString).string
+            val value = (tag as StringNBT).string
 
             active.add(UUID.fromString(value))
         }
     }
 
-    override fun serializeNBT(): NBTTagCompound {
-        val compound = NBTTagCompound()
+    override fun serializeNBT(): CompoundNBT {
+        val compound = CompoundNBT()
 
-        val adminTag = NBTTagCompound()
+        val adminTag = CompoundNBT()
         adminInventories.forEach {
-            adminTag.setTag(it.key.toString(), it.value)
+            adminTag.put(it.key.toString(), it.value)
         }
 
-        val normalTag = NBTTagCompound()
+        val normalTag = CompoundNBT()
         normalInventories.forEach {
-            normalTag.setTag(it.key.toString(), it.value)
+            normalTag.put(it.key.toString(), it.value)
         }
 
-        val lastLocTag = NBTTagCompound()
+        val lastLocTag = CompoundNBT()
         lastLocation.forEach {
-            lastLocTag.setLong(it.key.toString(), it.value.toLong())
+            lastLocTag.putLong(it.key.toString(), it.value.toLong())
         }
 
-        val activeTag = NBTTagList()
+        val activeTag = ListNBT()
         active.forEach {
-            activeTag.appendTag(NBTTagString(it.toString()))
+            activeTag.add(StringNBT(it.toString()))
         }
 
-        compound.setTag("adminInv", adminTag)
-        compound.setTag("normalInv", normalTag)
-        compound.setTag("lastLoc", lastLocTag)
-        compound.setTag("active", activeTag)
+        compound.put("adminInv", adminTag)
+        compound.put("normalInv", normalTag)
+        compound.put("lastLoc", lastLocTag)
+        compound.put("active", activeTag)
 
         return compound
     }
 
-    fun serializeInventory(inv: IItemHandler): NBTTagList {
-        val stacks = NBTTagList()
+    fun serializeInventory(inv: IItemHandler): ListNBT {
+        val stacks = ListNBT()
 
         for(i in 0..inv.slots) {
             val nbt = inv.getStackInSlot(i).serializeNBT()
-            stacks.appendTag(nbt)
+            stacks.add(nbt)
         }
 
         return stacks
     }
 
-    fun deserializeInto(nbt: NBTTagList, inv: IItemHandler) {
+    fun deserializeInto(nbt: ListNBT, inv: IItemHandler) {
         for ((i, entry) in nbt.withIndex()) {
-            val stack = ItemStack(entry as NBTTagCompound)
+            val stack = ItemStack.read(entry as CompoundNBT)
             inv.insertItem(i, stack, false)
         }
     }

@@ -1,8 +1,8 @@
 package gq.genprog.autocrat
 
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.inventory.Container
-import net.minecraft.inventory.IContainerListener
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.inventory.container.Container
+import net.minecraft.inventory.container.IContainerListener
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import java.util.*
@@ -23,7 +23,7 @@ object InventoryUtils {
         for (i in 0 until container.inventorySlots.size) {
             val stack = container.inventorySlots.get(i).stack
             val copy = stack.copy()
-            container.inventoryItemStacks[i] = copy
+            container.inventory[i] = copy
 
             for (receiver in getContainerListeners(container)) {
                 receiver.sendSlotContents(container, i, copy)
@@ -31,12 +31,12 @@ object InventoryUtils {
         }
     }
 
-    fun sendHeldContents(player: EntityPlayer) {
+    fun sendHeldContents(player: PlayerEntity) {
         val i = player.inventory.currentItem
-        val stack = player.inventoryContainer.getSlot(i).stack
+        val stack = player.container.getSlot(i).stack
 
-        for (receiver in getContainerListeners(player.inventoryContainer)) {
-            receiver.sendSlotContents(player.inventoryContainer, i, stack)
+        for (receiver in getContainerListeners(player.container)) {
+            receiver.sendSlotContents(player.container, i, stack)
         }
     }
 }

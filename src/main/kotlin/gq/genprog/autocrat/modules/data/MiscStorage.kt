@@ -1,9 +1,10 @@
 package gq.genprog.autocrat.modules.data
 
 import gq.genprog.autocrat.MOD_ID
-import net.minecraft.entity.player.EntityPlayer
-import net.minecraft.nbt.NBTTagCompound
+import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.nbt.CompoundNBT
 import net.minecraft.world.World
+import net.minecraft.world.server.ServerWorld
 import net.minecraft.world.storage.WorldSavedData
 import java.util.*
 
@@ -18,44 +19,40 @@ class MiscStorage(name: String): WorldSavedData(name) {
         val IDENTIFIER = "${MOD_ID}_misc"
 
         fun get(world: World): MiscStorage {
-            val storage = world.mapStorage!!
-            var inst = storage.getOrLoadData(MiscStorage::class.java, IDENTIFIER) as MiscStorage?
+            if (world !is ServerWorld) throw RuntimeException("Cannot access saved data clientside!");
+            // TODO: Better way of doing this. Runtime exceptions suck.
 
-            if (inst == null) {
-                inst = MiscStorage()
-                storage.setData(IDENTIFIER, inst)
-            }
-
-            return inst
+            val storage = world.savedData
+            return storage.getOrCreate({ MiscStorage() }, IDENTIFIER)
         }
     }
 
     val nicknames: HashMap<UUID, String> = hashMapOf()
     val modMode = ModModeData()
 
-    fun hasNick(player: EntityPlayer): Boolean {
+    fun hasNick(player: PlayerEntity): Boolean {
         return nicknames.containsKey(player.uniqueID)
     }
 
-    override fun writeToNBT(compound: NBTTagCompound): NBTTagCompound {
-        val nickStorage = NBTTagCompound()
+    override fun write(compound: CompoundNBT): CompoundNBT {
+        val nickStorage = CompoundNBT()
         for (entry in nicknames) {
-            nickStorage.setString(entry.key.toString(), entry.value)
+            nickStorage.putString(entry.key.toString(), entry.value)
         }
 
-        compound.setTag("nicks", nickStorage)
-        compound.setTag("admin", modMode.serializeNBT())
+        compound.put("nicks", nickStorage)
+        compound.put("admin", modMode.serializeNBT())
         return compound
     }
 
-    override fun readFromNBT(nbt: NBTTagCompound) {
-        val nickStorage = nbt.getCompoundTag("nicks")
-        for (key in nickStorage.keySet) {
+    override fun read(nbt: CompoundNBT) {
+        val nickStorage = nbt.getCompound("nicks")
+        for (key in nickStorage.keySet()) {
             val uid = UUID.fromString(key)
 
             nicknames[uid] = nickStorage.getString(key)
         }
 
-        this.modMode.deserializeNBT(nbt.getCompoundTag("admin"))
+        this.modMode.deserializeNBT(nbt.getCompound("admin"))
     }
 }

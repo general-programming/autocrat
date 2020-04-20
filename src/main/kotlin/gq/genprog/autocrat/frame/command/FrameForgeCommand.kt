@@ -5,11 +5,11 @@ import io.github.hedgehog1029.frame.dispatcher.exception.UsageException
 import io.github.hedgehog1029.frame.dispatcher.pipeline.IPipeline
 import io.github.hedgehog1029.frame.util.Namespace
 import net.minecraft.command.ICommand
-import net.minecraft.command.ICommandSender
-import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.command.ICommandSource
+import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.text.TextComponentString
+import net.minecraft.util.text.StringTextComponent
 import net.minecraft.util.text.TextFormatting
 import net.minecraftforge.server.permission.PermissionAPI
 import java.util.*
@@ -19,7 +19,7 @@ import java.util.*
  * Licensed under MIT.
  */
 class FrameForgeCommand(val pipeline: IPipeline): ICommand {
-    override fun getUsage(sender: ICommandSender?): String {
+    override fun getUsage(sender: ICommandSource?): String {
         return "/${pipeline.primaryAlias} ${pipeline.usage}"
     }
 
@@ -27,7 +27,7 @@ class FrameForgeCommand(val pipeline: IPipeline): ICommand {
         return pipeline.primaryAlias
     }
 
-    override fun getTabCompletions(server: MinecraftServer, sender: ICommandSender, args: Array<out String>, targetPos: BlockPos?): MutableList<String> {
+    override fun getTabCompletions(server: MinecraftServer, sender: ICommandSource, args: Array<out String>, targetPos: BlockPos?): MutableList<String> {
         return pipeline.getCompletions(args.toMutableList()) ?: mutableListOf()
     }
 
@@ -37,12 +37,12 @@ class FrameForgeCommand(val pipeline: IPipeline): ICommand {
         return this.name.compareTo(other.name)
     }
 
-    override fun checkPermission(server: MinecraftServer, sender: ICommandSender): Boolean {
+    override fun checkPermission(server: MinecraftServer, sender: ICommandSource): Boolean {
         if (pipeline.permission.isBlank() || sender is MinecraftServer) {
             return true
         }
 
-        val player = sender as EntityPlayer
+        val player = sender as PlayerEntity
         return PermissionAPI.hasPermission(player, pipeline.permission)
     }
 
@@ -54,15 +54,15 @@ class FrameForgeCommand(val pipeline: IPipeline): ICommand {
         return pipeline.aliases.toMutableList()
     }
 
-    fun ICommandSender.reply(text: String, color: TextFormatting = TextFormatting.GOLD) {
-        val component = TextComponentString(text).also {
+    fun ICommandSource.reply(text: String, color: TextFormatting = TextFormatting.GOLD) {
+        val component = StringTextComponent(text).also {
             it.style.color = color
         }
 
         this.sendMessage(component)
     }
 
-    override fun execute(server: MinecraftServer, sender: ICommandSender, args: Array<out String>) {
+    override fun execute(server: MinecraftServer, sender: ICommandSource, args: Array<out String>) {
         val namespace = Namespace()
 
         namespace.set("server", server)

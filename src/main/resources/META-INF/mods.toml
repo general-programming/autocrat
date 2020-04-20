@@ -1,0 +1,15 @@
+modLoader = "javafml"
+loaderVersion = "[28,)"
+issueTrackerURL = "github.com/general-programming/autocrat/issues"
+showAsResourcePack = false
+
+[[mods]]
+    modId = "autocrat"
+    version = "1.0.0"
+    displayName = "Autocrat"
+    displayURL = "genprog.gq"
+    authors = "offbeatwitch, General Programming"
+    description = """
+    Minecraft server modular administration toolset.
+    """
+#    dependencies = "required-after:forgelin;"
