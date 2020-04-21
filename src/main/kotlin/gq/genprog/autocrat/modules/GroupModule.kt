@@ -116,7 +116,7 @@ class GroupModule {
             return
         }
 
-        val owner = sender.server.playerList.getPlayerByUUID(group.owner)
+        val owner = sender.server.playerProfileCache.getProfileByUUID(group.owner)
         sender.controller().chat {
             color(TextFormatting.GREEN)
             append("Group ${group.id} info:", TextFormatting.GOLD)

@@ -45,19 +45,19 @@ class ClaimsModule: EventListener {
         if (claims.isClaimed(pos)) {
             val group = claims.getClaimGroup(pos)!!
 
-            if (group.isForeign(event.entityPlayer)) {
+            if (group.isForeign(event.player)) {
                 event.isCanceled = !group.access.canForeignBreakBlocks()
                 return // foreign users can't claim inside someone else's claim
             }
         }
 
         if (event.itemStack.item == Items.GOLDEN_SHOVEL) {
-            val sel = getPlayerSelection(event.entityPlayer)
+            val sel = getPlayerSelection(event.player)
             sel.first = event.pos
 
             event.controller().chat("Set first position to (${event.pos.x}, ${event.pos.y}, ${event.pos.z})")
             event.isCanceled = true
-            weHook.sendPoint(event.entityPlayer as ServerPlayerEntity, sel)
+            weHook.sendPoint(event.player as ServerPlayerEntity, sel)
         }
     }
 
@@ -73,14 +73,14 @@ class ClaimsModule: EventListener {
             else {
                 event.controller().chat("This area is claimed by ${group.name}.", TextFormatting.GREEN)
 
-//                weHook.sendChunkBorders(event.entityPlayer as ServerPlayerEntity, )
+//                weHook.sendChunkBorders(event.player as ServerPlayerEntity, )
             }
         }
 
         if (claims.isClaimed(pos)) {
             val group = claims.getClaimGroup(pos)!!
 
-            if (group.isForeign(event.entityPlayer)) {
+            if (group.isForeign(event.player)) {
                 event.isCanceled = !group.access.canForeignRightClick()
 
                 if (event.isCanceled)
@@ -90,12 +90,12 @@ class ClaimsModule: EventListener {
         }
 
         if (event.itemStack.item == Items.GOLDEN_SHOVEL) {
-            val sel = getPlayerSelection(event.entityPlayer)
+            val sel = getPlayerSelection(event.player)
             sel.second = event.pos
 
             event.controller().chat("Set second position to (${event.pos.x}, ${event.pos.y}, ${event.pos.z})")
             event.isCanceled = true
-            weHook.sendPoint(event.entityPlayer as ServerPlayerEntity, sel)
+            weHook.sendPoint(event.player as ServerPlayerEntity, sel)
         }
     }
 

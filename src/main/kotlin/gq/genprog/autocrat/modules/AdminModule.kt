@@ -47,7 +47,8 @@ class AdminModule: EventListener {
 
             sender.setGameType(GameType.CREATIVE)
             sender.controller().success("Entered mod mode. Use /done to quit.")
-            modlog.info("{} ({}) entered modmode at ({})", sender.name, sender.uniqueID, sender.position.joinToString())
+            modlog.info("{} ({}) entered modmode at ({})", sender.name.unformattedComponentText,
+                    sender.uniqueID, sender.position.joinToString())
             data.markDirty()
         }
     }
@@ -77,7 +78,7 @@ class AdminModule: EventListener {
 
             sender.setGameType(GameType.SURVIVAL)
             sender.controller().success("Exited mod mode.")
-            modlog.info("{} exited modmode.", sender.name)
+            modlog.info("{} exited modmode.", sender.name.unformattedComponentText)
             data.markDirty()
         }
     }
@@ -91,6 +92,7 @@ class AdminModule: EventListener {
         if (player !is ServerPlayerEntity) return
         if (!data.modMode.isPlayerActive(player)) return
 
-        modlog.info("{} executed command /{} {}", player.name, ctx.rootNode.name, ctx.arguments.keys.joinToString(" "))
+        modlog.info("{} executed command /{} {}", player.name.unformattedComponentText,
+                ctx.rootNode.name, ctx.arguments.keys.joinToString(" "))
     }
 }

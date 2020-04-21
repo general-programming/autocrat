@@ -4,6 +4,7 @@ import gq.genprog.autocrat.modules.data.MiscStorage
 import gq.genprog.autocrat.randomFrom
 import gq.genprog.autocrat.server.controller
 import io.github.hedgehog1029.frame.annotation.Command
+import io.github.hedgehog1029.frame.annotation.Optional
 import io.github.hedgehog1029.frame.annotation.Sender
 import io.github.hedgehog1029.frame.annotation.Text
 import net.minecraft.entity.player.ServerPlayerEntity
@@ -43,10 +44,10 @@ class FancyName: EventListener {
     }
 
     @Command(aliases = ["nickname", "nick"], description = "Change your nickname.")
-    fun changeNick(@Sender sender: ServerPlayerEntity, @Text nick: String) {
+    fun changeNick(@Sender sender: ServerPlayerEntity, @Optional @Text nick: String?) {
         val storage = MiscStorage.get(sender.world)
 
-        if (nick.isBlank()) {
+        if (nick.isNullOrBlank()) {
             storage.nicknames.remove(sender.uniqueID)
 
             sender.controller().chat("Cleared your nickname.", TextFormatting.GREEN)
