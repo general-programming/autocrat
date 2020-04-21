@@ -12,6 +12,7 @@ import net.minecraft.util.SoundCategory
 import net.minecraft.util.SoundEvents
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.dimension.DimensionType
+import net.minecraft.world.gen.Heightmap
 import net.minecraftforge.event.TickEvent
 import net.minecraftforge.event.entity.ProjectileImpactEvent
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent
@@ -41,9 +42,10 @@ class SimpleHomesModule: EventListener {
             val overworld = thrower.server.getWorld(DimensionType.OVERWORLD)
 
             val posOpt = if (thrower.world.getBlockState(thrower.position).block == Blocks.WATER) {
-                val pos = thrower.world.spawnPoint.add(0, 1, 0)
+                val pos = overworld.spawnPoint
+                val adjustedPos = overworld.getHeight(Heightmap.Type.WORLD_SURFACE, pos)
 
-                Optional.of(pos.toDoubleVec())
+                Optional.of(adjustedPos.toDoubleVec())
             } else {
                 val pos: BlockPos? = thrower.getBedLocation(DimensionType.OVERWORLD)
 
