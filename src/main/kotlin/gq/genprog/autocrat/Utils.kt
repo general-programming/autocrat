@@ -6,6 +6,7 @@ import net.minecraft.inventory.container.IContainerListener
 import net.minecraft.util.math.BlockPos
 import net.minecraft.util.math.Vec3d
 import java.util.*
+import java.util.concurrent.CompletableFuture
 
 /**
  * Written by @offbeatwitch.
@@ -37,6 +38,18 @@ object InventoryUtils {
 
         for (receiver in getContainerListeners(player.container)) {
             receiver.sendSlotContents(player.container, i, stack)
+        }
+    }
+}
+
+class CompletableTask(val runnable: () -> Unit) {
+    val future = CompletableFuture<Unit>()
+
+    fun run() {
+        try {
+            future.complete(runnable())
+        } catch (ex: Throwable) {
+            future.completeExceptionally(ex)
         }
     }
 }

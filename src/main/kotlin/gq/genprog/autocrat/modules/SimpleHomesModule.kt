@@ -1,37 +1,62 @@
 package gq.genprog.autocrat.modules
 
+import gq.genprog.autocrat.CompletableTask
 import gq.genprog.autocrat.server.controller
 import gq.genprog.autocrat.toDoubleVec
 import net.minecraft.block.Blocks
+import net.minecraft.entity.EntityType
 import net.minecraft.entity.item.EnderPearlEntity
 import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.particles.ParticleTypes
 import net.minecraft.util.SoundCategory
 import net.minecraft.util.SoundEvents
+import net.minecraft.util.math.BlockPos
 import net.minecraft.world.dimension.DimensionType
+import net.minecraftforge.event.TickEvent
 import net.minecraftforge.event.entity.ProjectileImpactEvent
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import java.util.*
+import java.util.concurrent.CompletableFuture
 
 /**
  * Written by @offbeatwitch.
  * Licensed under MIT.
  */
 class SimpleHomesModule: EventListener {
+    val waitingTasks = ArrayDeque<CompletableTask>()
+
+    fun schedule(cb: () -> Unit): CompletableFuture<Unit> {
+        val task = CompletableTask(cb)
+        waitingTasks.add(task)
+
+        return task.future
+    }
+
     @SubscribeEvent fun onPlayerPearl(ev: ProjectileImpactEvent.Throwable) {
         if (ev.throwable !is EnderPearlEntity) return
         val thrower = ev.throwable.thrower as? ServerPlayerEntity ?: return
 
         if (thrower.rotationPitch >= 80.0F) {
+            val overworld = thrower.server.getWorld(DimensionType.OVERWORLD)
+
             val posOpt = if (thrower.world.getBlockState(thrower.position).block == Blocks.WATER) {
                 val pos = thrower.world.spawnPoint.add(0, 1, 0)
 
                 Optional.of(pos.toDoubleVec())
             } else {
-                thrower.blockState.getBedSpawnPosition(
-                        thrower.type, thrower.world, thrower.getBedLocation(DimensionType.OVERWORLD), thrower
-                )
+                val pos: BlockPos? = thrower.getBedLocation(DimensionType.OVERWORLD)
+
+                if (pos == null) {
+                    Optional.empty()
+                } else {
+                    val state = overworld.getBlockState(pos)
+                    if (state.isBed(overworld, pos, thrower)) {
+                        state.getBedSpawnPosition(EntityType.PLAYER, overworld, pos, thrower)
+                    } else {
+                        Optional.of(pos.toDoubleVec())
+                    }
+                }
             }
 
             if (!posOpt.isPresent) {
@@ -39,12 +64,29 @@ class SimpleHomesModule: EventListener {
             }
 
             val pos = posOpt.get()
-            thrower.setPositionAndUpdate(pos.x, pos.y, pos.z)
-            thrower.serverWorld.spawnParticle(ParticleTypes.PORTAL, pos.x, pos.y, pos.z, 50, 0.2, 0.01, 0.2, 0.1)
-            thrower.serverWorld.playSound(null, pos.x, pos.y, pos.z, SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1.0F, 1.0F)
 
+            ev.throwable.remove()
             ev.isCanceled = true
-            thrower.serverWorld.removeEntity(ev.throwable)
+
+            if (thrower.dimension != DimensionType.OVERWORLD) {
+                schedule {
+                    thrower.teleport(overworld, pos.x, pos.y, pos.z, thrower.rotationYaw, 0F)
+                }
+            } else {
+                thrower.setPositionAndUpdate(pos.x, pos.y, pos.z)
+                CompletableFuture.completedFuture(false)
+            }.thenRun {
+                thrower.serverWorld.spawnParticle(ParticleTypes.PORTAL, pos.x, pos.y, pos.z, 50, 0.2, 0.01, 0.2, 0.1)
+                thrower.serverWorld.playSound(null, pos.x, pos.y, pos.z, SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.PLAYERS, 1.0F, 1.0F)
+            }
+        }
+    }
+
+    @SubscribeEvent fun onPostTick(ev: TickEvent.WorldTickEvent) {
+        if (ev.phase != TickEvent.Phase.END) return
+
+        while (waitingTasks.isNotEmpty()) {
+            waitingTasks.pop().run()
         }
     }
 
