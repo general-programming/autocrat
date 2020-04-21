@@ -4,27 +4,16 @@ A modular administration toolset for Minecraft servers.
 
 ## Modules
 
-* Claims (user groups, in-world selection, WECUI support)
+* Claims (user groups, in-world selection)
 * Sleep Vote (player threshold sleep)
 * Fancy Names (nicknames, random name color on join)
 * Admin (mod-mode for administrators)
 * Simple homes (throw enderpearl at feet to return to your bed)
-* Integration with [silly511/Backups-Mod](https://github.com/Silly511/Backups-Mod)
-
-### Outstanding 1.12 Bugs
-
-This branch (`1.12`) has a few outstanding issues:
-
-* SimpleHome may not work across dimensions (waiting for 1.14 backport)
-* Mod-mode's return-to-position may not work across dimensions (waiting for 1.14 backport)
-* Command-based homes module is unfinished
+* WIP: Command-based homes (unfinished)
 
 ## Building
 
-With the ForgeGradle environment:
-
 ```
-gradle setupCiWorkspace
 gradle reobfJar
 ```
 
