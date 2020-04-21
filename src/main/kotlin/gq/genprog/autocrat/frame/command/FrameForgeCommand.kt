@@ -7,6 +7,7 @@ import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.suggestion.Suggestions
 import com.mojang.brigadier.suggestion.SuggestionsBuilder
+import com.mojang.brigadier.tree.LiteralCommandNode
 import gq.genprog.autocrat.server.MessageBuilder
 import io.github.hedgehog1029.frame.dispatcher.pipeline.IPipeline
 import io.github.hedgehog1029.frame.util.Namespace
@@ -79,5 +80,15 @@ class FrameForgeCommand(val pipeline: IPipeline) {
         }
 
         return builder
+    }
+
+    fun yieldAliases(node: LiteralCommandNode<CommandSource>, cb: (LiteralArgumentBuilder<CommandSource>) -> Unit) {
+        pipeline.aliases.asSequence().drop(1).forEach { alias ->
+            val builder = literal<CommandSource>(alias)
+                    .requires(this::checkPermission)
+                    .redirect(node)
+
+            cb(builder)
+        }
     }
 }
