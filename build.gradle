@@ -88,16 +88,16 @@ repositories {
     mavenCentral()
     mavenLocal()
     jcenter()
+
     maven {
-        url "http://maven.shadowfacts.net/"
+        url "https://minecraft.curseforge.com/api/maven/"
     }
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:1.14.4-28.2.0"
 
-    embed "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    embed "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    implementation "kottle:Kottle:1.4.0"
     embed "io.github.hedgehog1029:frame:1.4.0-PRE"
 }
 

@@ -1,5 +1,5 @@
-modLoader = "javafml"
-loaderVersion = "[28,)"
+modLoader = "kotlinfml"
+loaderVersion = "[1,)"
 issueTrackerURL = "https://github.com/general-programming/autocrat/issues"
 showAsResourcePack = false
 
@@ -12,4 +12,3 @@ showAsResourcePack = false
     description = """
     Minecraft server modular administration toolset.
     """
-#    dependencies = "required-after:forgelin;"
