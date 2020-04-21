@@ -47,7 +47,7 @@ object AutocratConfig {
 
     class ConfigAccess(val cfg: UnmodifiableConfig) {
         operator fun <T> get(path: String): T = cfg.get<ForgeConfigSpec.ConfigValue<T>>(path).get()
-        fun getInt(path: String): Int = cfg.getInt(path)
+        fun getInt(path: String): Int = cfg.get<ForgeConfigSpec.IntValue>(path).get()
     }
 
     fun <T> get(path: String): T = get()[path]

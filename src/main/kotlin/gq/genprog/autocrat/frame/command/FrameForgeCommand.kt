@@ -1,15 +1,20 @@
 package gq.genprog.autocrat.frame.command
 
+import com.mojang.brigadier.arguments.StringArgumentType.string
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
 import com.mojang.brigadier.context.CommandContext
+import com.mojang.brigadier.suggestion.Suggestions
+import com.mojang.brigadier.suggestion.SuggestionsBuilder
 import gq.genprog.autocrat.server.MessageBuilder
 import io.github.hedgehog1029.frame.dispatcher.pipeline.IPipeline
+import io.github.hedgehog1029.frame.util.Namespace
 import net.minecraft.command.CommandSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.util.text.TextFormatting
 import net.minecraftforge.server.permission.PermissionAPI
+import java.util.concurrent.CompletableFuture
 
 /**
  * Written by @offbeatwitch.
@@ -37,12 +42,26 @@ class FrameForgeCommand(val pipeline: IPipeline) {
         return -1
     }
 
+    fun suggest(ctx: CommandContext<CommandSource>, builder: SuggestionsBuilder): CompletableFuture<Suggestions> {
+        val namespace = Namespace()
+        val src = ctx.source
+
+        namespace["server"] = src.server
+        namespace["source"] = src
+
+        pipeline.getCompletions(builder.input.split(' ').drop(1), namespace).forEach {
+            builder.suggest(it)
+        }
+
+        return builder.buildFuture()
+    }
+
     fun createNode(): LiteralArgumentBuilder<CommandSource>? {
         val builder = literal<CommandSource>(pipeline.primaryAlias)
 
         plans.forEach {
             val mappedArgs = it.parameterNames.map { name ->
-                argument<CommandSource, String>(name, FrameArgumentType(this))
+                argument<CommandSource, String>(name, string()).suggests(this::suggest)
             }
 
             val last = mappedArgs.lastOrNull() ?: builder
