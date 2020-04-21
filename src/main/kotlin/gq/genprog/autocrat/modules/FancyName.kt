@@ -8,9 +8,11 @@ import io.github.hedgehog1029.frame.annotation.Optional
 import io.github.hedgehog1029.frame.annotation.Sender
 import io.github.hedgehog1029.frame.annotation.Text
 import net.minecraft.entity.player.ServerPlayerEntity
+import net.minecraft.util.text.ITextComponent
+import net.minecraft.util.text.StringTextComponent
 import net.minecraft.util.text.TextFormatting
-import net.minecraft.world.server.ServerWorld
-import net.minecraftforge.event.entity.player.PlayerEvent
+import net.minecraft.util.text.TranslationTextComponent
+import net.minecraftforge.event.ServerChatEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import java.util.*
 
@@ -29,24 +31,33 @@ class FancyName: EventListener {
             TextFormatting.DARK_GREEN
     )
 
+    val colorCache = hashMapOf<UUID, TextFormatting>()
+
+    fun getUserColor(player: ServerPlayerEntity): TextFormatting {
+        return colorCache.getOrPut(player.uniqueID) { randomFrom(validColors) }
+    }
+
     @SubscribeEvent
-    fun onNameFormat(event: PlayerEvent.NameFormat) {
-        val storage = MiscStorage.get(event.player.world as ServerWorld)
-        val prefix = randomFrom(validColors).toString()
-        val suffix = TextFormatting.RESET.toString()
+    fun onChat(event: ServerChatEvent) {
+        val storage = MiscStorage.get(event.player.server!!)
+        val pickedColor = getUserColor(event.player)
 
-        if (storage.hasNick(event.player)) {
-            event.displayname = prefix + storage.nicknames[event.player.uniqueID]
+        // awful cast hacks
+        val component = event.component as TranslationTextComponent
+        val oldDisplayName = component.formatArgs[0] as ITextComponent
 
-            return
+        val displayName = if (storage.hasNick(event.player)) {
+            StringTextComponent(storage.nicknames[event.player.uniqueID]!!).applyTextStyle(pickedColor)
+        } else {
+            oldDisplayName.deepCopy().applyTextStyle(pickedColor)
         }
 
-        event.displayname = prefix + event.username + suffix
+        component.formatArgs[0] = displayName
     }
 
     @Command(aliases = ["nickname", "nick"], description = "Change your nickname.")
     fun changeNick(@Sender sender: ServerPlayerEntity, @Optional @Text nick: String?) {
-        val storage = MiscStorage.get(sender.serverWorld)
+        val storage = MiscStorage.get(sender.server)
 
         if (nick.isNullOrBlank()) {
             storage.nicknames.remove(sender.uniqueID)
@@ -65,6 +76,6 @@ class FancyName: EventListener {
         }
 
         storage.markDirty()
-//        sender.refreshDisplayName()
+        sender.serverWorld.savedData.save()
     }
 }

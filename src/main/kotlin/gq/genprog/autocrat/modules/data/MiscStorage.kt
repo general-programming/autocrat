@@ -4,7 +4,8 @@ import gq.genprog.autocrat.MOD_ID
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.nbt.CompoundNBT
-import net.minecraft.world.server.ServerWorld
+import net.minecraft.server.MinecraftServer
+import net.minecraft.world.dimension.DimensionType
 import net.minecraft.world.storage.WorldSavedData
 import java.util.*
 
@@ -18,7 +19,8 @@ class MiscStorage(name: String): WorldSavedData(name) {
     companion object {
         val IDENTIFIER = "${MOD_ID}_misc"
 
-        fun get(world: ServerWorld): MiscStorage {
+        fun get(server: MinecraftServer): MiscStorage {
+            val world = server.getWorld(DimensionType.OVERWORLD)
             val storage = world.savedData
             return storage.getOrCreate({ MiscStorage() }, IDENTIFIER)
         }

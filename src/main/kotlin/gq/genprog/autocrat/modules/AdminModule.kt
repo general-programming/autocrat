@@ -28,7 +28,7 @@ class AdminModule: EventListener {
 
     @Command(aliases = ["mod"], description = "Enter mod mode.", permission = "autocrat.mod")
     fun enterModMode(@Sender sender: ServerPlayerEntity) {
-        val data = MiscStorage.get(sender.serverWorld)
+        val data = MiscStorage.get(sender.server)
         val modMode = data.fetchModModeData(sender)
 
         if (modMode.active) {
@@ -39,14 +39,16 @@ class AdminModule: EventListener {
         modMode.Handlers(sender).transitionToAdmin()
 
         sender.setGameType(GameType.CREATIVE)
+        sender.controller().success("Entered mod mode.")
         modlog.info("{} ({}) entered modmode at ({})", sender.name.unformattedComponentText,
                 sender.uniqueID, sender.position.joinToString())
         data.markDirty()
+        sender.serverWorld.savedData.save()
     }
 
     @Command(aliases = ["done"], description = "Exit mod mode.", permission = "autocrat.mod")
     fun exitModMode(@Sender sender: ServerPlayerEntity) {
-        val data = MiscStorage.get(sender.serverWorld)
+        val data = MiscStorage.get(sender.server)
         val modMode = data.fetchModModeData(sender)
 
         if (!modMode.active) {
@@ -54,19 +56,20 @@ class AdminModule: EventListener {
             return
         }
 
-        modMode.Handlers(sender).transitionToAdmin()
+        modMode.Handlers(sender).transitionToUser()
 
         sender.setGameType(GameType.SURVIVAL)
         sender.controller().success("Exited mod mode.")
         modlog.info("{} exited modmode.", sender.name.unformattedComponentText)
         data.markDirty()
+        sender.serverWorld.savedData.save()
     }
 
     @SubscribeEvent fun onCommand(ev: CommandEvent) {
         val ctx = ev.parseResults.context
         val sender = ctx.source
         val player = sender.entity
-        val data = MiscStorage.get(sender.world)
+        val data = MiscStorage.get(sender.server)
         val fullCommand = ev.parseResults.reader.string
 
         if (player !is ServerPlayerEntity) return
