@@ -9,6 +9,7 @@ import io.github.hedgehog1029.frame.annotation.Sender
 import io.github.hedgehog1029.frame.annotation.Text
 import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.util.text.TextFormatting
+import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.event.entity.player.PlayerEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import java.util.*
@@ -30,12 +31,12 @@ class FancyName: EventListener {
 
     @SubscribeEvent
     fun onNameFormat(event: PlayerEvent.NameFormat) {
-        val storage = MiscStorage.get(event.entityPlayer.world)
+        val storage = MiscStorage.get(event.player.world as ServerWorld)
         val prefix = randomFrom(validColors).toString()
         val suffix = TextFormatting.RESET.toString()
 
-        if (storage.hasNick(event.entityPlayer)) {
-            event.displayname = prefix + storage.nicknames[event.entityPlayer.uniqueID]
+        if (storage.hasNick(event.player)) {
+            event.displayname = prefix + storage.nicknames[event.player.uniqueID]
 
             return
         }
@@ -45,7 +46,7 @@ class FancyName: EventListener {
 
     @Command(aliases = ["nickname", "nick"], description = "Change your nickname.")
     fun changeNick(@Sender sender: ServerPlayerEntity, @Optional @Text nick: String?) {
-        val storage = MiscStorage.get(sender.world)
+        val storage = MiscStorage.get(sender.serverWorld)
 
         if (nick.isNullOrBlank()) {
             storage.nicknames.remove(sender.uniqueID)

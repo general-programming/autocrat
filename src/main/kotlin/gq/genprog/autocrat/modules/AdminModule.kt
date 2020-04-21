@@ -9,7 +9,6 @@ import net.minecraft.util.math.BlockPos
 import net.minecraft.world.GameType
 import net.minecraftforge.event.CommandEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.items.CapabilityItemHandler
 import org.apache.logging.log4j.LogManager
 import java.util.*
 
@@ -29,58 +28,38 @@ class AdminModule: EventListener {
 
     @Command(aliases = ["mod"], description = "Enter mod mode.", permission = "autocrat.mod")
     fun enterModMode(@Sender sender: ServerPlayerEntity) {
-        val data = MiscStorage.get(sender.world)
+        val data = MiscStorage.get(sender.serverWorld)
+        val modMode = data.fetchModModeData(sender)
 
-        if (data.modMode.isPlayerActive(sender)) {
+        if (modMode.active) {
             sender.controller().err("You're already in mod-mode!")
             return
         }
 
-        sender.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent { itemHandler ->
-            val tag = data.modMode.serializeInventory(itemHandler)
+        modMode.Handlers(sender).transitionToAdmin()
 
-            val adminTag = data.modMode.storePlayerTag(sender, tag)
-            sender.inventory.clear()
-            if (adminTag != null) {
-                data.modMode.deserializeInto(adminTag, itemHandler)
-            }
-
-            sender.setGameType(GameType.CREATIVE)
-            sender.controller().success("Entered mod mode. Use /done to quit.")
-            modlog.info("{} ({}) entered modmode at ({})", sender.name.unformattedComponentText,
-                    sender.uniqueID, sender.position.joinToString())
-            data.markDirty()
-        }
+        sender.setGameType(GameType.CREATIVE)
+        modlog.info("{} ({}) entered modmode at ({})", sender.name.unformattedComponentText,
+                sender.uniqueID, sender.position.joinToString())
+        data.markDirty()
     }
 
     @Command(aliases = ["done"], description = "Exit mod mode.", permission = "autocrat.mod")
     fun exitModMode(@Sender sender: ServerPlayerEntity) {
-        val data = MiscStorage.get(sender.world)
+        val data = MiscStorage.get(sender.serverWorld)
+        val modMode = data.fetchModModeData(sender)
 
-        if (!data.modMode.isPlayerActive(sender)) {
+        if (!modMode.active) {
             sender.controller().err("You're not currently in mod-mode!")
             return
         }
 
-        sender.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent { itemHandler ->
-            val tag = data.modMode.serializeInventory(itemHandler)
+        modMode.Handlers(sender).transitionToAdmin()
 
-            val playerTag = data.modMode.storeAdminTag(sender, tag)
-            sender.inventory.clear()
-            if (playerTag != null) {
-                data.modMode.deserializeInto(playerTag, itemHandler)
-            }
-
-            val pos = data.modMode.lastLocation.remove(sender.uniqueID)
-            if (pos != null) {
-                sender.setPositionAndUpdate(pos.x.toDouble(), pos.y.toDouble(), pos.z.toDouble())
-            }
-
-            sender.setGameType(GameType.SURVIVAL)
-            sender.controller().success("Exited mod mode.")
-            modlog.info("{} exited modmode.", sender.name.unformattedComponentText)
-            data.markDirty()
-        }
+        sender.setGameType(GameType.SURVIVAL)
+        sender.controller().success("Exited mod mode.")
+        modlog.info("{} exited modmode.", sender.name.unformattedComponentText)
+        data.markDirty()
     }
 
     @SubscribeEvent fun onCommand(ev: CommandEvent) {
@@ -88,11 +67,11 @@ class AdminModule: EventListener {
         val sender = ctx.source
         val player = sender.entity
         val data = MiscStorage.get(sender.world)
+        val fullCommand = ev.parseResults.reader.string
 
         if (player !is ServerPlayerEntity) return
-        if (!data.modMode.isPlayerActive(player)) return
+        if (!data.fetchModModeData(player).active) return
 
-        modlog.info("{} executed command /{} {}", player.name.unformattedComponentText,
-                ctx.rootNode.name, ctx.arguments.keys.joinToString(" "))
+        modlog.info("{} executed command {}", player.name.unformattedComponentText, fullCommand)
     }
 }

@@ -2,8 +2,8 @@ package gq.genprog.autocrat.modules.data
 
 import gq.genprog.autocrat.MOD_ID
 import net.minecraft.entity.player.PlayerEntity
+import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.nbt.CompoundNBT
-import net.minecraft.world.World
 import net.minecraft.world.server.ServerWorld
 import net.minecraft.world.storage.WorldSavedData
 import java.util.*
@@ -18,20 +18,25 @@ class MiscStorage(name: String): WorldSavedData(name) {
     companion object {
         val IDENTIFIER = "${MOD_ID}_misc"
 
-        fun get(world: World): MiscStorage {
-            if (world !is ServerWorld) throw RuntimeException("Cannot access saved data clientside!");
-            // TODO: Better way of doing this. Runtime exceptions suck.
-
+        fun get(world: ServerWorld): MiscStorage {
             val storage = world.savedData
             return storage.getOrCreate({ MiscStorage() }, IDENTIFIER)
         }
     }
 
     val nicknames: HashMap<UUID, String> = hashMapOf()
-    val modMode = ModModeData()
+    val modModeData: HashMap<UUID, ModModeData> = hashMapOf()
 
     fun hasNick(player: PlayerEntity): Boolean {
         return nicknames.containsKey(player.uniqueID)
+    }
+
+    fun fetchModModeData(player: ServerPlayerEntity): ModModeData {
+        return modModeData.getOrPut(player.uniqueID) {
+            ModModeData().apply {
+                lastLocation = player.position
+            }
+        }
     }
 
     override fun write(compound: CompoundNBT): CompoundNBT {
@@ -40,8 +45,13 @@ class MiscStorage(name: String): WorldSavedData(name) {
             nickStorage.putString(entry.key.toString(), entry.value)
         }
 
+        val modModeStorage = CompoundNBT()
+        for (entry in modModeData) {
+            modModeStorage.put(entry.key.toString(), entry.value.serializeNBT())
+        }
+
         compound.put("nicks", nickStorage)
-        compound.put("admin", modMode.serializeNBT())
+        compound.put("admin", modModeStorage)
         return compound
     }
 
@@ -53,6 +63,13 @@ class MiscStorage(name: String): WorldSavedData(name) {
             nicknames[uid] = nickStorage.getString(key)
         }
 
-        this.modMode.deserializeNBT(nbt.getCompound("admin"))
+        val modModeStorage = nbt.getCompound("admin")
+        for (key in modModeStorage.keySet()) {
+            val uid = UUID.fromString(key)
+
+            modModeData[uid] = ModModeData().apply {
+                deserializeNBT(modModeStorage.getCompound(key))
+            }
+        }
     }
 }
