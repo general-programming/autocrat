@@ -1,6 +1,7 @@
 package gq.genprog.autocrat.frame
 
 import com.mojang.brigadier.CommandDispatcher
+import com.mojang.brigadier.builder.LiteralArgumentBuilder.literal
 import gq.genprog.autocrat.config.AutocratConfig
 import gq.genprog.autocrat.frame.command.FrameForgeCommand
 import io.github.hedgehog1029.frame.dispatcher.mapping.ICommandFactory
@@ -23,6 +24,11 @@ class ForgeCommandFactory: ICommandFactory {
 
         val command = FrameForgeCommand(pipe)
         dispatcher.register(command.createNode())
+
+        pipe.aliases.asSequence().drop(1).forEach { alias ->
+            dispatcher.register(literal<CommandSource>(alias)
+                    .redirect(dispatcher.root.getChild(pipe.primaryAlias)))
+        }
 
         if (!pipe.permission.isBlank()) {
             PermissionAPI.registerNode(pipe.permission, DefaultPermissionLevel.OP, "Use command ${pipe.primaryAlias}")
