@@ -12,6 +12,6 @@ import net.minecraft.entity.player.ServerPlayerEntity
 class ForgeBindingProvider: IBindingProvider {
     override fun configure(transformer: ArgumentTransformer) {
         transformer.bind(ICommandSource::class.java, SenderProvider())
-        transformer.bind(ServerPlayerEntity::class.java, SenderProvider())
+        transformer.bind(ServerPlayerEntity::class.java, PlayerProvider())
     }
 }

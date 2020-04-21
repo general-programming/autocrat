@@ -1,7 +1,8 @@
 package gq.genprog.autocrat.frame
 
 import io.github.hedgehog1029.frame.hooks.IHookCallback
-import net.minecraftforge.fml.common.Loader
+import net.minecraftforge.fml.ModList
+
 
 /**
  * Written by @offbeatwitch.
@@ -9,6 +10,6 @@ import net.minecraftforge.fml.common.Loader
  */
 class ForgeHookCallback: IHookCallback {
     override fun shouldHookLoad(modid: String): Boolean {
-        return Loader.isModLoaded(modid)
+        return ModList.get().isLoaded(modid)
     }
 }

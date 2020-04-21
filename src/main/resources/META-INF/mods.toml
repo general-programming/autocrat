@@ -1,6 +1,6 @@
 modLoader = "javafml"
 loaderVersion = "[28,)"
-issueTrackerURL = "github.com/general-programming/autocrat/issues"
+issueTrackerURL = "https://github.com/general-programming/autocrat/issues"
 showAsResourcePack = false
 
 [[mods]]

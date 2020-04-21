@@ -116,11 +116,11 @@ class GroupModule {
             return
         }
 
-        val owner = sender.mcServer.playerList.getPlayerByUUID(group.owner)
+        val owner = sender.server.playerList.getPlayerByUUID(group.owner)
         sender.controller().chat {
             color(TextFormatting.GREEN)
             append("Group ${group.id} info:", TextFormatting.GOLD)
-            append("Name: ${group.name} / Owner: ${owner.name}")
+            append("Name: ${group.name} / Owner: ${owner?.name ?: "Unknown"}")
             last("${group.members.size} members / in ${group.access} mode")
         }
     }

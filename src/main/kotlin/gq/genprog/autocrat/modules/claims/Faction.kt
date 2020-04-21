@@ -32,16 +32,16 @@ class Faction(val id: String, var name: String, val owner: UUID, var access: Acc
     fun serializeNBT(): CompoundNBT {
         val nbt = CompoundNBT()
 
-        nbt.setString("name", name)
-        nbt.setUniqueId("owner", owner)
-        nbt.setByte("accessMode", access.id)
+        nbt.putString("name", name)
+        nbt.putUniqueId("owner", owner)
+        nbt.putByte("accessMode", access.id)
 
         val memberTag = ListNBT()
         for (member in members) {
-            memberTag.appendTag(StringNBT(member.toString()))
+            memberTag.add(StringNBT(member.toString()))
         }
 
-        nbt.setTag("members", memberTag)
+        nbt.put("members", memberTag)
 
         return nbt
     }

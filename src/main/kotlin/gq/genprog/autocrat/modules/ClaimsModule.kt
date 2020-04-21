@@ -136,7 +136,7 @@ class ClaimsModule: EventListener {
 
         val numToClaim = sel.countChunks()
         val totalClaimed = numToClaim + claims.countClaimsOf(group)
-        if (totalClaimed > AutocratConfig.claims.maxClaimedChunks) {
+        if (totalClaimed > AutocratConfig.get().getInt("claims.maxClaimedChunks")) {
             ctx.chat("You can't claim more than 50 total chunks!", TextFormatting.RED)
             return
         }

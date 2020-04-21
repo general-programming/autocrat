@@ -40,30 +40,33 @@ class ServerProxy {
 
         frame.loadModule(ChoicesModule())
 //        frame.loadModule(TricksModule())
+        
+        val config = AutocratConfig.get()
 
-        if (AutocratConfig.modules.claims) {
+        if (config["modules.claims"]) {
             frame.loadModule(GroupModule())
             frame.loadModule(ClaimsModule())
         }
 
-        if (AutocratConfig.modules.sleepVote && !ConflictChecker.isSleepVoteLoaded())
+        if (config["modules.sleepVote"] && !ConflictChecker.isSleepVoteLoaded())
             frame.loadModule(SleepVoteModule())
 
-        if (AutocratConfig.modules.fancyNames)
+        if (config["modules.fancyNames"])
             frame.loadModule(FancyName())
 
-        if (AutocratConfig.modules.admin)
+        if (config["modules.admin"])
             frame.loadModule(AdminModule())
 
-        if (AutocratConfig.modules.simpleHome)
+        if (config["modules.simpleHome"])
             frame.loadModule(SimpleHomesModule())
 
-        if (AutocratConfig.modules.commandHome)
+        if (config["modules.commandHome"])
             frame.loadModule(HomesModule())
     }
 
     @SubscribeEvent
     fun onServerStart(ev: FMLServerStartingEvent) {
+        (frame.commandFactory as ForgeCommandFactory).dispatcher = ev.commandDispatcher
         frame.go()
     }
 

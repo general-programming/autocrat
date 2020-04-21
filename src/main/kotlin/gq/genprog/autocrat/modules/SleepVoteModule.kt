@@ -39,7 +39,7 @@ class SleepVoteModule: EventListener {
         val current = this.sleepingPlayers.size
         val total = playerList.currentPlayerCount
         val percent = (current.toFloat() / total.toFloat()) * 100
-        val threshold = AutocratConfig.sleepVote.threshold
+        val threshold = AutocratConfig.get().getInt("sleep.threshold")
 
         if (percent >= threshold) {
             world.dayTime = 1000

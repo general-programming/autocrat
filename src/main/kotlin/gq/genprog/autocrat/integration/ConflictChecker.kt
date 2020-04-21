@@ -1,6 +1,6 @@
 package gq.genprog.autocrat.integration
 
-import net.minecraftforge.fml.common.Loader
+import net.minecraftforge.fml.ModList
 
 /**
  * Written by @offbeatwitch.
@@ -8,7 +8,9 @@ import net.minecraftforge.fml.common.Loader
  */
 object ConflictChecker {
     fun isAnyLoaded(vararg modids: String): Boolean {
-        return modids.any { Loader.isModLoaded(it) }
+        val list = ModList.get()
+
+        return modids.any { list.isLoaded(it) }
     }
 
     fun isSleepVoteLoaded(): Boolean {

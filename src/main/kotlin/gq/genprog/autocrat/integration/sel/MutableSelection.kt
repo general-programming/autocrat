@@ -1,7 +1,7 @@
 package gq.genprog.autocrat.integration.sel
 
 import net.minecraft.util.math.BlockPos
-import net.minecraft.world.gen.structure.StructureBoundingBox
+import net.minecraft.util.math.MutableBoundingBox
 
 /**
  * Written by @offbeatwitch.
@@ -11,14 +11,14 @@ class MutableSelection {
     var first: BlockPos? = null
     var second: BlockPos? = null
 
-    fun toStructureBox(): StructureBoundingBox? {
+    fun toStructureBox(): MutableBoundingBox? {
         val a = first
         val b = second
 
         if (a == null || b == null)
             return null
 
-        return StructureBoundingBox.createProper(a.x, a.y, a.z, b.x, b.y, b.z)
+        return MutableBoundingBox.createProper(a.x, a.y, a.z, b.x, b.y, b.z)
     }
 
     fun isComplete(): Boolean {
