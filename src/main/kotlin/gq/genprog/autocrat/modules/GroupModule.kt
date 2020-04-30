@@ -62,7 +62,7 @@ class GroupModule {
         }
 
         group.members.add(target.uniqueID)
-        sender.controller().chat("Added user ${target.name} to your group.")
+        sender.controller().chat("Added user ${target.scoreboardName} to your group.")
         storage.markDirty()
     }
 
@@ -82,7 +82,7 @@ class GroupModule {
         }
 
         group.members.remove(target.uniqueID)
-        sender.controller().chat("Removed user ${target.name} from your group.")
+        sender.controller().chat("Removed user ${target.scoreboardName} from your group.")
         storage.markDirty()
     }
 
@@ -119,7 +119,7 @@ class GroupModule {
         val owner = sender.server.playerProfileCache.getProfileByUUID(group.owner)
         sender.controller().chat {
             color(TextFormatting.GREEN)
-            append("Group ${group.id} info:", TextFormatting.GOLD)
+            append("Group '${group.id}' info:", TextFormatting.GOLD)
             append("Name: ${group.name} / Owner: ${owner?.name ?: "Unknown"}")
             last("${group.members.size} members / in ${group.access} mode")
         }
