@@ -15,6 +15,7 @@ import gq.genprog.autocrat.modules.data.PlayerHomes
 import gq.genprog.autocrat.modules.data.capability.HomeStorage
 import io.github.hedgehog1029.frame.Frame
 import net.minecraftforge.common.capabilities.CapabilityManager
+import net.minecraftforge.event.RegisterCommandsEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent
@@ -67,8 +68,12 @@ class ServerProxy {
     }
 
     @SubscribeEvent
+    fun onRegisterCommands(ev: RegisterCommandsEvent) {
+        (frame.commandFactory as ForgeCommandFactory).dispatcher = ev.dispatcher
+    }
+
+    @SubscribeEvent
     fun onServerStart(ev: FMLServerStartingEvent) {
-        (frame.commandFactory as ForgeCommandFactory).dispatcher = ev.commandDispatcher
         frame.go()
     }
 

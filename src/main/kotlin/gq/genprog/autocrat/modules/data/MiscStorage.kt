@@ -5,7 +5,7 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.nbt.CompoundNBT
 import net.minecraft.server.MinecraftServer
-import net.minecraft.world.dimension.DimensionType
+import net.minecraft.world.World
 import net.minecraft.world.storage.WorldSavedData
 import java.util.*
 
@@ -20,7 +20,7 @@ class MiscStorage(name: String): WorldSavedData(name) {
         val IDENTIFIER = "${MOD_ID}_misc"
 
         fun get(server: MinecraftServer): MiscStorage {
-            val world = server.getWorld(DimensionType.OVERWORLD)
+            val world = server.getWorld(World.OVERWORLD)!!
             val storage = world.savedData
             return storage.getOrCreate({ MiscStorage() }, IDENTIFIER)
         }

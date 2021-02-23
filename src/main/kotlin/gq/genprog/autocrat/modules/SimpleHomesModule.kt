@@ -10,8 +10,7 @@ import net.minecraft.entity.player.ServerPlayerEntity
 import net.minecraft.particles.ParticleTypes
 import net.minecraft.util.SoundCategory
 import net.minecraft.util.SoundEvents
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.dimension.DimensionType
+import net.minecraft.world.World
 import net.minecraft.world.gen.Heightmap
 import net.minecraftforge.event.TickEvent
 import net.minecraftforge.event.entity.ProjectileImpactEvent
@@ -36,10 +35,10 @@ class SimpleHomesModule: EventListener {
 
     @SubscribeEvent fun onPlayerPearl(ev: ProjectileImpactEvent.Throwable) {
         if (ev.throwable !is EnderPearlEntity) return
-        val thrower = ev.throwable.thrower as? ServerPlayerEntity ?: return
+        val thrower = ev.throwable.func_234616_v_() as? ServerPlayerEntity ?: return
 
         if (thrower.rotationPitch >= 80.0F) {
-            val overworld = thrower.server.getWorld(DimensionType.OVERWORLD)
+            val overworld = thrower.server.getWorld(World.OVERWORLD)!!
 
             val posOpt = if (thrower.world.getBlockState(thrower.position).block == Blocks.WATER) {
                 val pos = overworld.spawnPoint
@@ -47,14 +46,10 @@ class SimpleHomesModule: EventListener {
 
                 Optional.of(adjustedPos.toDoubleVec())
             } else {
-                val pos: BlockPos? = thrower.getBedLocation(DimensionType.OVERWORLD)
-
-                if (pos == null) {
-                    Optional.empty()
-                } else {
+                thrower.bedPosition.flatMap { pos ->
                     val state = overworld.getBlockState(pos)
                     if (state.isBed(overworld, pos, thrower)) {
-                        state.getBedSpawnPosition(EntityType.PLAYER, overworld, pos, thrower)
+                        state.getBedSpawnPosition(EntityType.PLAYER, overworld, pos, 0.0f, thrower)
                     } else {
                         Optional.of(pos.toDoubleVec())
                     }
@@ -70,7 +65,7 @@ class SimpleHomesModule: EventListener {
             ev.throwable.remove()
             ev.isCanceled = true
 
-            if (thrower.dimension != DimensionType.OVERWORLD) {
+            if (thrower.world.dimensionKey != World.OVERWORLD) {
                 schedule {
                     thrower.teleport(overworld, pos.x, pos.y, pos.z, thrower.rotationYaw, 0F)
                 }
@@ -95,9 +90,9 @@ class SimpleHomesModule: EventListener {
     @SubscribeEvent fun onPlayerSleep(ev: PlayerSleepInBedEvent) {
         val player = ev.player as ServerPlayerEntity
 
-        if (player.getBedLocation(player.dimension) == ev.pos) return
+        if (player.bedPosition == ev.optionalPos) return
 
-        player.setSpawnPoint(ev.pos, false, player.dimension)
+        player.setBedPosition(ev.pos)
         player.controller().chat("You have set your home location to this bed. When you die, you will respawn here.")
     }
 

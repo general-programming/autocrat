@@ -4,7 +4,7 @@ import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.inventory.container.Container
 import net.minecraft.inventory.container.IContainerListener
 import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.Vec3d
+import net.minecraft.util.math.vector.Vector3d
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
@@ -63,6 +63,6 @@ fun BlockPos.joinToString(seperator: CharSequence = ", "): String {
     return arrayOf(x, y, z).joinToString(seperator)
 }
 
-fun BlockPos.toDoubleVec(): Vec3d {
-    return Vec3d(this)
+fun BlockPos.toDoubleVec(): Vector3d {
+    return Vector3d(this.x.toDouble(), this.y.toDouble(), this.z.toDouble())
 }

@@ -38,7 +38,7 @@ class HomesModule: EventListener {
         if (!ev.isWasDeath) return
 
         ev.original.getCapability(CapabilityHomeStorage.HOME_STORAGE_CAPABILITY!!).ifPresent { oldStorage ->
-            ev.entityPlayer.getCapability(CapabilityHomeStorage.HOME_STORAGE_CAPABILITY!!).ifPresent { newStorage ->
+            ev.player.getCapability(CapabilityHomeStorage.HOME_STORAGE_CAPABILITY!!).ifPresent { newStorage ->
                 val homes = newStorage.getAllHomes()
                 (homes as MutableMap).putAll(oldStorage.getAllHomes())
             }

@@ -17,7 +17,7 @@ import net.minecraftforge.fml.network.NetworkRegistry
  */
 class WorldEditCUIHook {
     val autocratSelectionUid = "bbdd0c77-aa3b-452c-9feb-52af99f9da89"
-    val hasCuiMarker = RangedAttribute(null, "wecui.marker", 0.0, 0.0, 4.0)
+    val hasCuiMarker = RangedAttribute( "wecui.marker", 0.0, 0.0, 4.0)
 
     val cuiChannel = NetworkRegistry.newEventChannel(
             ResourceLocation("worldedit:cui"), { "1" }, { _ -> true }, { _ -> true })

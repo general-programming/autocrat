@@ -38,7 +38,7 @@ class Faction(val id: String, var name: String, val owner: UUID, var access: Acc
 
         val memberTag = ListNBT()
         for (member in members) {
-            memberTag.add(StringNBT(member.toString()))
+            memberTag.add(StringNBT.valueOf(member.toString()))
         }
 
         nbt.put("members", memberTag)

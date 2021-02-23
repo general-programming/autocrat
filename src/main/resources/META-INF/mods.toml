@@ -1,6 +1,7 @@
-modLoader = "kotlinfml"
+modLoader = "kotlinforforge"
 loaderVersion = "[1,)"
 issueTrackerURL = "https://github.com/general-programming/autocrat/issues"
+license = "CPPL"
 showAsResourcePack = false
 
 [[mods]]

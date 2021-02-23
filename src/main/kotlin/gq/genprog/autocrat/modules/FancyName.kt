@@ -47,9 +47,9 @@ class FancyName: EventListener {
         val oldDisplayName = component.formatArgs[0] as ITextComponent
 
         val displayName = if (storage.hasNick(event.player)) {
-            StringTextComponent(storage.nicknames[event.player.uniqueID]!!).applyTextStyle(pickedColor)
+            StringTextComponent(storage.nicknames[event.player.uniqueID]!!).mergeStyle(pickedColor)
         } else {
-            oldDisplayName.deepCopy().applyTextStyle(pickedColor)
+            oldDisplayName.deepCopy().mergeStyle(pickedColor)
         }
 
         component.formatArgs[0] = displayName

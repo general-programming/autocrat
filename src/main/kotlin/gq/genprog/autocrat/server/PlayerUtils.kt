@@ -4,11 +4,9 @@ import gq.genprog.autocrat.modules.ChoicesModule
 import net.minecraft.command.ICommandSource
 import net.minecraft.entity.player.PlayerEntity
 import net.minecraft.server.management.PlayerList
-import net.minecraft.util.text.ITextComponent
-import net.minecraft.util.text.StringTextComponent
-import net.minecraft.util.text.Style
-import net.minecraft.util.text.TextFormatting
-import net.minecraft.world.dimension.DimensionType
+import net.minecraft.util.Util
+import net.minecraft.util.text.*
+import net.minecraft.world.World
 import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.event.entity.player.PlayerEvent
 
@@ -35,7 +33,7 @@ interface IController {
 abstract class AbstractController: IController {
     override fun chat(msg: String, color: TextFormatting): IController {
         val text = StringTextComponent(msg).also {
-            it.style = Style().setColor(color)
+            it.style = it.style.setFormatting(color)
         }
 
         this.sendMessage(text)
@@ -54,7 +52,7 @@ abstract class AbstractController: IController {
 
 class CommandSenderController(val sender: ICommandSource): AbstractController() {
     override fun sendMessage(component: ITextComponent) {
-        sender.sendMessage(component)
+        sender.sendMessage(component, Util.DUMMY_UUID)
     }
 }
 
@@ -62,26 +60,26 @@ class MessageBuilder {
     val parent = StringTextComponent("")
 
     fun color(color: TextFormatting) {
-        parent.style.color = color
+        parent.mergeStyle(color)
     }
 
-    fun style(block: Style.() -> Unit) {
-        block.invoke(parent.style)
+    fun style(block: Style.() -> Style) {
+        parent.style = block.invoke(parent.style)
     }
 
     fun append(text: String) {
-        parent.appendText(text + '\n')
+        parent.appendString(text + '\n')
     }
 
     fun append(text: String, color: TextFormatting) {
         val component = StringTextComponent(text + '\n')
-        component.style.color = color
+        component.mergeStyle(color)
 
-        parent.appendSibling(component)
+        parent.append(component)
     }
 
     fun last(text: String) {
-        parent.appendText(text)
+        parent.appendString(text)
     }
 }
 
@@ -96,7 +94,9 @@ fun PlayerEvent.controller(): CommandSenderController {
 fun PlayerList.controller(): IController {
     return object : AbstractController() {
         override fun sendMessage(component: ITextComponent) {
-            this@controller.sendMessage(component, false)
+            this@controller.players.forEach {
+                it.func_241151_a_(component, ChatType.SYSTEM, Util.DUMMY_UUID)
+            }
         }
     }
 }
@@ -106,5 +106,5 @@ fun PlayerEntity.choice(cb: (choice: Boolean) -> Unit) {
 }
 
 fun PlayerEntity.resolveOverworld(): ServerWorld {
-    return server!!.getWorld(DimensionType.OVERWORLD)
+    return server!!.getWorld(World.OVERWORLD)!!
 }
