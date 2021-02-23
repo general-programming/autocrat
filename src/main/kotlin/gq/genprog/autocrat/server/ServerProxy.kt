@@ -3,6 +3,7 @@ package gq.genprog.autocrat.server
 import gq.genprog.autocrat.config.AutocratConfig
 import gq.genprog.autocrat.frame.ForgeCommandFactory
 import gq.genprog.autocrat.frame.ForgeHookCallback
+import gq.genprog.autocrat.frame.ForgeLogReceiver
 import gq.genprog.autocrat.frame.bindings.ForgeBindingProvider
 import gq.genprog.autocrat.frame.injectors.ForgeEventInjector
 import gq.genprog.autocrat.integration.ConflictChecker
@@ -24,9 +25,10 @@ import net.minecraftforge.fml.event.server.FMLServerStartingEvent
  * Licensed under MIT.
  */
 class ServerProxy {
-    val frame: Frame = Frame.Builder().also {
-        it.commandFactory = ForgeCommandFactory()
-        it.hookCallback = ForgeHookCallback()
+    val frame: Frame = Frame.Builder().apply {
+        commandFactory = ForgeCommandFactory()
+        hookCallback = ForgeHookCallback()
+        logReceiver = ForgeLogReceiver()
     }.build()
 
     @SubscribeEvent

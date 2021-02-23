@@ -30,6 +30,7 @@ compileKotlin {
 
     kotlinOptions {
         jvmTarget = "1.8"
+        javaParameters = true
     }
 }
 
@@ -86,11 +87,15 @@ minecraft {
 
 repositories {
     mavenCentral()
-    mavenLocal()
     jcenter()
 
     maven {
         url "https://minecraft.curseforge.com/api/maven/"
+    }
+
+    maven {
+        name "obw's maven"
+        url "https://maven.offbeatwit.ch/repository/releases/"
     }
 }
 
@@ -98,7 +103,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:1.14.4-28.2.0"
 
     implementation "kottle:Kottle:1.4.0"
-    embed "io.github.hedgehog1029:frame:1.4.0-PRE"
+    embed "io.github.hedgehog1029:frame:1.4.2"
 }
 
 jar {
